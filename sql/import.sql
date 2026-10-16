@@ -266,9 +266,9 @@ INSERT INTO produit (id, categorie_id, nom, slug, description, details, prix, pr
     ( 7, 1, 'Maillot OM Extérieur 25/26',  'maillot-exterieur-25-26',
         'Maillot extérieur de la saison précédente, dernières pièces disponibles.',
         'Coupe standard. 100 % polyester. Lavage à 30 °C.', 70.00, 10.00, 'maillot-exterieur-25-26.png', FALSE),
-    ( 8, 1, 'Maillot OM Rétro 1993',       'maillot-retro-1993',
-        'Réédition du maillot porté lors de la victoire en Ligue des champions 1993.',
-        'Coton et polyester. Sans flocage officiel. Lavage à 30 °C.', 90.00, NULL, 'maillot-retro-1993.png', FALSE),
+    ( 8, 1, 'Maillot OM King',             'maillot-om-king',
+        'Maillot manches longues de la collection OM King, rayé bleu ciel et blanc, numéro 10.',
+        'Coton et polyester. Sans flocage officiel. Lavage à 30 °C.', 90.00, NULL, 'maillot-om-king.png', FALSE),
     -- Entraînement
     ( 9, 2, 'Maillot d''entraînement 26/27', 'maillot-entrainement-26-27',
         'Maillot d''entraînement porté par les joueurs pendant les séances de la saison 26/27.',
