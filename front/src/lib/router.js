@@ -1,6 +1,6 @@
 /**
  * Routeur côté client : associe une adresse à une page, et change de page sans
- * recharger le navigateur. Il gère les paramètres d'URL (/films/:id), les
+ * recharger le navigateur. Il gère les paramètres d'URL (/produits/:slug), les
  * layouts et la page 404.
  *
  * Les liens internes portent l'attribut data-link et un chemin de route, sans
@@ -75,7 +75,7 @@ class Router {
     return this;
   }
 
-  // Convertir un chemin en regex : /films/:id -> ^\/films\/([^\/]+)$
+  // Convertir un chemin en regex : /produits/:slug -> ^\/produits\/([^\/]+)$
   pathToRegex(path) {
     if (path === "*") return /.*/;
 
@@ -87,7 +87,7 @@ class Router {
     return new RegExp("^" + pattern + "$");
   }
 
-  // Extraire les noms des paramètres : /films/:id -> ["id"]
+  // Extraire les noms des paramètres : /produits/:slug -> ["slug"]
   extractParams(path) {
     const params = [];
     for (const match of path.matchAll(/:(\w+)/g)) {
@@ -96,7 +96,7 @@ class Router {
     return params;
   }
 
-  // Extraire les valeurs des paramètres : /films/12 -> { id: "12" }
+  // Extraire les valeurs des paramètres : /produits/mug-om -> { slug: "mug-om" }
   getParams(route, path) {
     const matches = path.match(route.regex);
     if (!matches) return {};

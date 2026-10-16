@@ -6,28 +6,23 @@
   déclare cette variante. Une classe préfixée par dark: s'applique donc dès que
   la page est en thème sombre.
 */
-@custom-variant dark (&:where(.theme-dark, .theme-dark *));
-
 /*
-  Bandeau des cartes de film : un dégradé dont la teinte est calculée à partir
-  du titre (voir ui/carte-film/index.js). La teinte arrive par la variable
-  --teinte, posée dans le template. Aucune image n'est chargée.
+  Charte OM (.agents/rules/charte-om.md) : couleurs reprises des variables
+  Figma. Génère bg-om-bleu, text-om-texte, font-om…
 */
-@utility bandeau-clair {
-  background-image: linear-gradient(
-    160deg,
-    hsl(var(--teinte) 28% 96%),
-    hsl(calc(var(--teinte) + 25) 28% 91%)
-  );
+@theme {
+  --color-om-bleu: #0061ad;
+  --color-om-bleu-fonce: #003d79;
+  --color-om-bleu-moyen: #0b4a89;
+  --color-om-bleu-clair: #2679b9;
+  --color-om-texte: #1c1c1c;
+  --color-om-texte-doux: #494f55;
+  --color-om-fond: #f3f5f7;
+  /* Police à confirmer avec la maquette Figma. */
+  --font-om: ui-sans-serif, system-ui, sans-serif;
 }
 
-@utility bandeau-sombre {
-  background-image: linear-gradient(
-    160deg,
-    hsl(var(--teinte) 18% 17%),
-    hsl(calc(var(--teinte) + 25) 18% 12%)
-  );
-}
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));
 
 @layer base {
   /* Menus déroulants et barres de défilement natifs, eux aussi en sombre. */
