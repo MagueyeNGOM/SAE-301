@@ -1,0 +1,18 @@
+<li class="flex gap-4 rounded-xl bg-om-fond p-3 md:p-4">
+  <img class="h-[72px] w-16 shrink-0 rounded-[10px] bg-white object-cover md:h-[120px] md:w-[110px]" src="{{image}}" alt="{{nom}}" width="110" height="120" loading="lazy">
+
+  <div class="flex min-w-0 flex-1 flex-col items-start gap-2">
+    <a href="/produit/{{slug}}" data-link class="text-[13px] font-semibold text-om-texte hover:underline md:text-[15px]">{{nom}}</a>
+
+    <div class="flex items-center gap-4">
+      <div class="flex items-center rounded-lg bg-om-fond-doux">
+        <button type="button" data-role="moins" aria-label="Diminuer la quantité de {{nom}}" class="flex size-[34px] items-center justify-center text-sm font-semibold text-om-texte disabled:opacity-40">−</button>
+        <span data-role="quantite" aria-live="polite" class="flex size-[34px] items-center justify-center text-sm font-semibold text-om-texte">{{quantite}}</span>
+        <button type="button" data-role="plus" aria-label="Augmenter la quantité de {{nom}}" class="flex size-[34px] items-center justify-center text-sm font-semibold text-om-texte disabled:opacity-40">+</button>
+      </div>
+      <button type="button" data-role="supprimer" class="text-xs text-om-texte-doux underline underline-offset-4 transition-colors hover:text-om-texte">Supprimer<span class="sr-only"> {{nom}} du panier</span></button>
+    </div>
+  </div>
+
+  <p class="shrink-0 text-[13px] font-semibold text-om-texte md:text-base">{{sousTotal}}</p>
+</li>

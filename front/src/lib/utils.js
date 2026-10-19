@@ -48,4 +48,14 @@ function htmlToFragment(htmlString) {
   return template.content;
 }
 
-export { genericRenderer, htmlToFragment };
+/**
+ * Affiche une autre page sans recharger : le routeur écoute « popstate ».
+ *
+ * @param {string} chemin - Chemin de route, sans le chemin du projet (« /panier »).
+ */
+function redirect(chemin) {
+  window.history.pushState(null, "", import.meta.env.BASE_URL.replace(/\/$/, "") + chemin);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+export { genericRenderer, htmlToFragment, redirect };

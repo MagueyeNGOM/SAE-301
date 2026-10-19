@@ -1,0 +1,6 @@
+<section aria-labelledby="titre-recapitulatif" class="flex flex-col gap-3.5 rounded-xl bg-om-fond p-[22px]">
+  <h2 id="titre-recapitulatif" class="text-base font-semibold text-om-texte">Récapitulatif</h2>
+  <p class="flex items-start justify-between text-[13px]"><span class="text-om-texte-doux">Sous-total</span><span class="text-om-texte">{{sousTotal}}</span></p>
+  <p class="flex items-center justify-between text-om-texte"><span class="text-[15px] font-semibold">Total</span><span class="text-[22px] font-bold">{{total}}</span></p>
+  <slot name="action"></slot>
+</section>

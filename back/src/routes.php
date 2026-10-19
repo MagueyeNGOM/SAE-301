@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controller\AuthController;
 use App\Controller\CatalogueController;
+use App\Controller\OrderController;
 use App\Controller\StatsController;
 
 /**
@@ -17,8 +18,13 @@ use App\Controller\StatsController;
  */
 
 return [
-    'GET  /api/films'       => [CatalogueController::class, 'index'],
+    'GET  /api/produits'    => [CatalogueController::class, 'index'],
+    'GET  /api/categories'  => [CatalogueController::class, 'categories'],
+    'GET  /api/produit'     => [CatalogueController::class, 'show'],
+    'POST /api/register'    => [AuthController::class,      'register'],
     'POST /api/login'       => [AuthController::class,      'login'],
+    'GET  /api/me'          => [AuthController::class,      'me'],
     'POST /api/logout'      => [AuthController::class,      'logout'],
-    'GET  /api/admin/stats' => [StatsController::class,     'index'],
+    'POST /api/commande'    => [OrderController::class,     'creer'],
+    'GET  /api/admin/stats'=> [StatsController::class,     'index'],
 ];

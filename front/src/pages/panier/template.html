@@ -1,0 +1,19 @@
+<div>
+  <slot name="etapes"></slot>
+
+  <div class="mx-auto flex max-w-[1200px] flex-col gap-3 px-4 pt-1.5 pb-1.5 md:px-10 md:pt-3 md:pb-[100px] lg:flex-row lg:items-start lg:gap-8">
+    <div class="flex flex-col gap-3 md:gap-3.5 lg:min-w-0 lg:flex-1">
+      <h1 data-role="titre" class="text-xl font-bold text-om-texte md:text-[26px]">Mon panier</h1>
+
+      <slot name="message"></slot>
+      <slot name="vide"></slot>
+      <slot name="lignes"></slot>
+      <p data-role="note" class="hidden text-xs text-om-texte-doux md:block">Votre panier est enregistré sur cet appareil.</p>
+    </div>
+
+    <div class="flex flex-col gap-3 lg:w-[360px] lg:shrink-0">
+      <slot name="recapitulatif"></slot>
+      <a href="/" data-link class="hidden rounded-lg bg-om-fond-doux px-6 py-3 text-center text-[13px] font-semibold text-om-bleu transition-colors hover:bg-om-texte-discret/30 md:block">Continuer mes achats</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<div>
+  <slot name="etapes"></slot>
+
+  <div class="mx-auto flex w-full max-w-[640px] flex-col gap-3 px-4 pt-1.5 pb-1.5 md:gap-4 md:px-0 md:pt-3 md:pb-[100px]">
+    <h1 class="text-xl font-bold text-om-texte md:text-[26px]">Vérifiez votre commande</h1>
+
+    <ul data-role="lignes" class="flex flex-col gap-3 md:gap-4"></ul>
+
+    <slot name="recapitulatif"></slot>
+
+    <p class="rounded-lg bg-om-fond-doux px-3.5 py-2.5 text-[11px] text-om-info md:px-4 md:py-3 md:text-xs"><span class="md:hidden">Vous serez informé dès que la commande sera disponible.</span><span class="hidden md:inline">Vous serez informé dès que votre commande sera disponible au retrait.</span></p>
+
+    <p role="alert" data-role="message" class="rounded-lg bg-om-erreur-fond px-3 py-2.5 text-[11px] font-semibold text-om-erreur md:px-3.5 md:text-xs">{{message}}</p>
+
+    <button type="button" data-role="confirmer" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-om-bleu-fonce disabled:opacity-60">Confirmer ma commande</button>
+
+    <a href="/panier" data-link class="hidden text-center text-[13px] font-semibold text-om-bleu md:block">‹ Modifier mon panier</a>
+  </div>
+</div>

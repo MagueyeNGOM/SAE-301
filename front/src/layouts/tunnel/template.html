@@ -1,0 +1,15 @@
+<div class="flex min-h-screen flex-col bg-white">
+  <!-- shortcut: « Aide » est un simple texte, la maquette ne définit pas de page d'aide. -->
+  <header class="flex items-center justify-between gap-2 p-4 text-xs whitespace-nowrap text-om-texte-doux md:px-10 md:py-6">
+    <a href="/" data-link>‹ Retour à la boutique</a>
+    <p class="font-semibold text-om-texte md:text-[15px]">OLYMPIQUE DE MARSEILLE</p>
+    <span>Aide</span>
+  </header>
+
+  <main id="contenu" tabindex="-1" class="flex-1 focus:outline-none">
+    <!-- Le slot sans nom reçoit la page affichée (voir lib/router.js). -->
+    <slot></slot>
+  </main>
+
+  <slot name="pied"></slot>
+</div>
