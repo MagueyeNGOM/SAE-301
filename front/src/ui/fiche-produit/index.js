@@ -155,4 +155,4 @@ let FicheProduitView = {
   },
 };
 
-export { FicheProduitView };
+export { FicheProduitView, NOM_FLOCAGE, NUMERO_FLOCAGE };

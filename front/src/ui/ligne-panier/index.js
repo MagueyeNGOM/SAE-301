@@ -4,7 +4,7 @@ import { formaterPrix } from "../../lib/format.js";
 import template from "./template.html?raw";
 
 // Une ligne du panier (CMD-B). Les actions de l'utilisateur sont signalées par
-// actions.surQuantite(cle, quantite) et actions.surSupprimer(cle), la clé étant
+// actions.surQuantite(cle, quantite), actions.surModifier(cle) (OPT-A) et actions.surSupprimer(cle), la clé étant
 // celle de CartData.cle (une taille ou un flocage différent fait une autre ligne).
 let LignePanierView = {
   html: function (ligne) {
@@ -33,6 +33,7 @@ let LignePanierView = {
 
     moins.addEventListener("click", () => actions.surQuantite(cle, ligne.quantite - 1));
     plus.addEventListener("click", () => actions.surQuantite(cle, ligne.quantite + 1));
+    fragment.querySelector('[data-role="modifier"]').addEventListener("click", () => actions.surModifier(cle));
     fragment.querySelector('[data-role="supprimer"]').addEventListener("click", () => actions.surSupprimer(cle));
     return fragment;
   },

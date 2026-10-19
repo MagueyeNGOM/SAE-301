@@ -1,0 +1,39 @@
+<section aria-labelledby="titre-hero" class="grid md:grid-cols-2">
+  <div class="relative flex min-h-[420px] flex-col justify-end gap-3 overflow-hidden bg-om-bleu-fonce px-4 py-8 text-white md:min-h-[430px] md:px-10 md:py-10">
+    <img src="{{hero}}" alt="" class="absolute inset-0 h-full w-full object-cover object-top">
+    <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-b from-transparent via-om-bleu-fonce/30 to-om-bleu-fonce"></div>
+    <p class="relative text-xs uppercase">Nouvelle collection 26/27</p>
+    <h1 id="titre-hero" class="relative max-w-md text-4xl leading-tight font-bold tracking-tight md:text-[40px]">Le maillot domicile est arrivé</h1>
+    <p class="relative max-w-sm text-base">Commandez en ligne, retirez-le en boutique dès qu’il est prêt.</p>
+    <a href="/produit/maillot-domicile-26-27" data-link class="relative mt-2 w-fit rounded-lg bg-white px-6 py-3 text-sm font-semibold text-om-bleu transition-colors hover:bg-om-fond-doux">Voir le maillot</a>
+  </div>
+
+  <div class="relative flex min-h-[320px] items-center justify-center bg-om-fond md:min-h-[430px]">
+    <img src="{{maillot}}" alt="Maillot OM domicile 26/27" class="h-full max-h-[430px] w-full object-contain">
+    <div class="absolute bottom-6 left-4 flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-sm shadow-xs md:left-7">
+      <span class="font-medium text-om-texte">Maillot domicile 26/27</span>
+      <span class="font-bold text-om-bleu">100,00 €</span>
+      <span class="rounded bg-om-succes-fond px-2 py-1 text-[10px] font-semibold text-om-succes uppercase">En stock</span>
+    </div>
+  </div>
+</section>
+
+<slot name="message"></slot>
+
+<section aria-labelledby="titre-dispo" class="bg-white px-4 py-10 md:px-10">
+  <div class="mb-6 flex items-baseline justify-between gap-4">
+    <h2 id="titre-dispo" class="text-2xl font-bold tracking-tight text-om-texte md:text-[28px]">Disponible maintenant</h2>
+    <a href="/catalogue" data-link class="text-sm font-semibold whitespace-nowrap text-om-bleu hover:underline">Voir tous les produits ›</a>
+  </div>
+  <div class="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+    <slot name="disponibles"></slot>
+  </div>
+</section>
+
+<section aria-labelledby="titre-dernieres" class="bg-om-fond px-4 py-10 md:px-10">
+  <h2 id="titre-dernieres" class="text-2xl font-bold tracking-tight text-om-texte md:text-[28px]">Dernières pièces</h2>
+  <p class="mt-1 mb-6 text-sm text-om-texte-doux">Il n’en reste que quelques-uns : commandez avant qu’ils ne soient épuisés.</p>
+  <div class="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+    <slot name="dernieres"></slot>
+  </div>
+</section>

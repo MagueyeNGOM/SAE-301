@@ -76,6 +76,24 @@ CartData.ajouter = function (produit, options = {}) {
   CartData.enregistrer(lignes);
 };
 
+// Remplace la taille et le flocage d'une ligne (OPT-A). options : { taille, flocage }.
+// Si une autre ligne a alors les mêmes options, les deux fusionnent.
+CartData.modifierOptions = function (cle, options) {
+  let lignes = CartData.lire();
+  let ligne = lignes.find((l) => CartData.cle(l) === cle);
+  if (!ligne) {
+    return;
+  }
+  ligne.taille = options.taille ?? null;
+  ligne.flocage = options.flocage ?? null;
+  let autre = lignes.find((l) => l !== ligne && CartData.cle(l) === CartData.cle(ligne));
+  if (autre) {
+    autre.quantite = Math.min(autre.quantite + ligne.quantite, QUANTITE_MAX);
+    lignes.splice(lignes.indexOf(ligne), 1);
+  }
+  CartData.enregistrer(lignes);
+};
+
 // Une quantité inférieure à 1 supprime la ligne.
 CartData.changerQuantite = function (cle, quantite) {
   if (!(quantite >= 1)) {
