@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controller\AuthController;
 use App\Controller\CatalogueController;
+use App\Controller\OrderController;
 use App\Controller\StatsController;
 
 /**
@@ -24,5 +25,6 @@ return [
     'POST /api/login'       => [AuthController::class,      'login'],
     'GET  /api/me'          => [AuthController::class,      'me'],
     'POST /api/logout'      => [AuthController::class,      'logout'],
-    'GET  /api/admin/stats' => [StatsController::class,     'index'],
+    'POST /api/commande'    => [OrderController::class,     'creer'],
+    'GET  /api/admin/stats'=> [StatsController::class,     'index'],
 ];

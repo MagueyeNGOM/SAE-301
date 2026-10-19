@@ -1,5 +1,7 @@
 import { AuthData } from "../../data/auth.js";
+import { CartData } from "../../data/cart.js";
 import { htmlToFragment, redirect } from "../../lib/utils.js";
+import { EtapesTunnelView } from "../../ui/etapes-tunnel/index.js";
 import { FormulaireAuthView } from "../../ui/formulaire-auth/index.js";
 import template from "./template.html?raw";
 
@@ -30,7 +32,8 @@ C.handler_envoi = async function (valeurs) {
   } else {
     try {
       await AuthData.register(M.valeurs.nom, M.valeurs.email, valeurs.mdp);
-      redirect("/");
+      // Un panier plein : le client vient finaliser sa commande (CMD-A).
+      redirect(CartData.compter() > 0 ? "/recapitulatif" : "/");
       return;
     } catch (erreur) {
       M.message = erreur.message;
@@ -67,6 +70,7 @@ V.rafraichir = function () {
 V.createPageFragment = function () {
   let pageFragment = htmlToFragment(template);
 
+  pageFragment.querySelector('slot[name="etapes"]').replaceWith(EtapesTunnelView.dom({ etape: 2 }));
   pageFragment.querySelector('slot[name="formulaire"]').replaceWith(
     FormulaireAuthView.dom(
       {

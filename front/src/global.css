@@ -24,6 +24,10 @@
   --color-om-bordure-champ: #d0d2d3;
   --color-om-erreur: #a12a2a;
   --color-om-erreur-fond: #fadddd;
+  /* Confirmation de commande (CMD-A) et message d'information. */
+  --color-om-succes: #1f7a3e;
+  --color-om-succes-fond: #ddf3e4;
+  --color-om-info: #0b6ba0;
   /* Police à confirmer avec la maquette Figma. */
   --font-om: ui-sans-serif, system-ui, sans-serif;
 }

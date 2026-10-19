@@ -3,8 +3,9 @@ import { PiedDePageView } from "../../ui/pied-de-page/index.js";
 import template from "./template.html?raw";
 
 /**
- * Layout du tunnel de commande (connexion, inscription) : en-tête allégé,
- * étapes de la commande et pied de page, sans le menu de la boutique.
+ * Layout du tunnel de commande (panier, connexion, inscription, récapitulatif,
+ * confirmation) : en-tête allégé et pied de page, sans le menu de la boutique.
+ * Les étapes de la commande sont affichées par chaque page, qui connaît la sienne.
  *
  * Le slot sans nom est laissé au routeur, qui y place la page.
  *

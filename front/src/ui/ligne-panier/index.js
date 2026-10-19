@@ -10,9 +10,7 @@ let LignePanierView = {
     return genericRenderer(template, {
       nom: ligne.nom,
       slug: ligne.slug,
-      prix: formaterPrix(ligne.prix),
       quantite: ligne.quantite,
-      max: QUANTITE_MAX,
       sousTotal: formaterPrix(ligne.prix * ligne.quantite),
       image: import.meta.env.BASE_URL + "images/produits/" + ligne.image,
     });
@@ -20,9 +18,15 @@ let LignePanierView = {
 
   dom: function (ligne, actions) {
     let fragment = htmlToFragment(LignePanierView.html(ligne));
-    fragment
-      .querySelector('[data-role="quantite"]')
-      .addEventListener("change", (e) => actions.surQuantite(ligne.slug, e.target.valueAsNumber));
+    let moins = fragment.querySelector('[data-role="moins"]');
+    let plus = fragment.querySelector('[data-role="plus"]');
+
+    // Les bornes sont celles du panier : au moins 1 (« Supprimer » retire la ligne).
+    moins.disabled = ligne.quantite <= 1;
+    plus.disabled = ligne.quantite >= QUANTITE_MAX;
+
+    moins.addEventListener("click", () => actions.surQuantite(ligne.slug, ligne.quantite - 1));
+    plus.addEventListener("click", () => actions.surQuantite(ligne.slug, ligne.quantite + 1));
     fragment.querySelector('[data-role="supprimer"]').addEventListener("click", () => actions.surSupprimer(ligne.slug));
     return fragment;
   },

@@ -207,6 +207,8 @@ CREATE TABLE commande (
 -- ---------------------------------------------------------------------------
 -- Lignes de commande
 --
+-- taille_id : NULL tant que le choix d'une taille n'est pas proposé (CMD-A).
+-- Base déjà importée : ALTER TABLE ligne_commande MODIFY taille_id TINYINT UNSIGNED NULL;
 -- nom_produit, prix_unitaire, prix_flocage : copiés au moment de la commande.
 -- Un changement de prix ou de nom ensuite ne modifie pas une commande passée.
 -- flocage_nom / flocage_numero : NULL sans flocage (« Flocage NGOM 10 »).
@@ -215,8 +217,8 @@ CREATE TABLE ligne_commande (
     id             INT UNSIGNED      NOT NULL AUTO_INCREMENT,
     commande_id    INT UNSIGNED      NOT NULL,
     produit_id     SMALLINT UNSIGNED NOT NULL,
-    taille_id      TINYINT UNSIGNED  NOT NULL,
-    nom_produit    VARCHAR(120)      NOT NULL,
+    taille_id      TINYINT UNSIGNED  NULL,
+    nom_produit   VARCHAR(120)      NOT NULL,
     quantite       SMALLINT UNSIGNED NOT NULL,
     prix_unitaire  DECIMAL(7,2)      NOT NULL,
     flocage_nom    VARCHAR(12)       NULL,

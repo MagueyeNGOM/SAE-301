@@ -18,7 +18,9 @@ use App\Core\Response;
 use App\Core\Router;
 use App\Controller\AuthController;
 use App\Controller\CatalogueController;
+use App\Controller\OrderController;
 use App\Controller\StatsController;
+use App\Model\OrderModel;
 use App\Model\ProductModel;
 use App\Model\UserModel;
 
@@ -63,6 +65,7 @@ try {
     $controleurs = [
         CatalogueController::class => new CatalogueController(new ProductModel($pdo)),
         AuthController::class      => new AuthController(new UserModel($pdo)),
+        OrderController::class     => new OrderController(new OrderModel($pdo), new ProductModel($pdo)),
         StatsController::class     => new StatsController(new ProductModel($pdo)),
     ];
 
