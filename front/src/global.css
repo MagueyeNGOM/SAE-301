@@ -1,6 +1,18 @@
 @import "tailwindcss";
 
 
+/* Typo des titres de boutique.om.fr (OM Marseille). */
+@font-face { font-family: "OM Marseille"; src: url("/fonts/OMMarseille-Light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "OM Marseille"; src: url("/fonts/OMMarseille-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "OM Marseille"; src: url("/fonts/OMMarseille-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "OM Marseille"; src: url("/fonts/OMMarseille-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+/* Typo du texte de boutique.om.fr (Manrope). */
+@font-face { font-family: "Manrope"; src: url("/fonts/Manrope-Light.woff2") format("woff2"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("/fonts/Manrope-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("/fonts/Manrope-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Manrope"; src: url("/fonts/Manrope-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
 @theme inline {
   --color-om-bleu: var(--bg-principal);
   --color-om-bleu-fonce: var(--bg-principal-fonce);
@@ -67,6 +79,20 @@
   :where(a, button, select, input):focus-visible {
     outline: 2px solid var(--color-zinc-400);
     outline-offset: 2px;
+  }
+
+  body {
+    font-family: "Manrope", var(--font-om);
+  }
+
+  h1, h2, h3 {
+    font-family: "OM Marseille", var(--font-om);
+  }
+
+  /* Comme sur boutique.om.fr : titres de page en majuscules, sauf les noms de produit (dans un lien). */
+  :where(h1, h2, h3):not(a *) {
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
   }
 
   button:not(:disabled) {

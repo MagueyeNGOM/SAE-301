@@ -1,6 +1,7 @@
 import { Router } from "./lib/router.js";
 import { RootLayout } from "./layouts/root/layout.js";
 import { TunnelLayout } from "./layouts/tunnel/layout.js";
+import { AccueilPage } from "./pages/accueil/page.js";
 import { CataloguePage } from "./pages/catalogue/page.js";
 import { ProduitPage } from "./pages/produit/page.js";
 import { PanierPage } from "./pages/panier/page.js";
@@ -23,7 +24,8 @@ router.addLayout("/panier", TunnelLayout);
 router.addLayout("/recapitulatif", TunnelLayout);
 router.addLayout("/confirmation", TunnelLayout);
 
-router.addRoute("/", CataloguePage);
+router.addRoute("/", AccueilPage);
+router.addRoute("/catalogue", CataloguePage);
 router.addRoute("/categorie/:slug", CataloguePage);
 router.addRoute("/produit/:slug", ProduitPage);
 router.addRoute("/panier", PanierPage);

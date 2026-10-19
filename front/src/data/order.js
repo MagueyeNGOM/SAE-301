@@ -11,7 +11,7 @@ let derniere = null;
  * Validation de la commande : POST /api/commande
  * Seuls les slugs, les quantités, la taille et le flocage partent : le serveur relit les prix en base
  * et identifie le client par sa session.
- * Renvoie { numero, total, articles }.
+ * Renvoie { numero, total, articles, lignes }.
  */
 OrderData.valider = async function (lignes) {
   let reponse = await postRequest("commande", {
@@ -22,7 +22,8 @@ OrderData.valider = async function (lignes) {
       flocage: l.flocage ? { nom: l.flocage.nom, numero: l.flocage.numero } : null,
     })),
   });
-  derniere = reponse.commande;
+  // Les lignes (avec leurs options) servent à la page de confirmation.
+  derniere = { ...reponse.commande, lignes };
   return derniere;
 };
 

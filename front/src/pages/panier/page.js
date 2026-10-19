@@ -1,6 +1,8 @@
 import { CartData } from "../../data/cart.js";
+import { ProductData } from "../../data/product.js";
 import { formaterPrix } from "../../lib/format.js";
 import { htmlToFragment } from "../../lib/utils.js";
+import { EditionOptionsView } from "../../ui/edition-options/index.js";
 import { EtapesTunnelView } from "../../ui/etapes-tunnel/index.js";
 import { LignePanierView } from "../../ui/ligne-panier/index.js";
 import { MessageView } from "../../ui/message/index.js";
@@ -15,6 +17,7 @@ import template from "./template.html?raw";
 let M = {
   lignes: [], // lignes du panier : { slug, nom, prix, image, quantite, taille, flocage, prixFlocage }
   message: null, // { type, texte }, ou null
+  edition: null, // ligne dont on modifie les options : { cle, produit }, ou null
 };
 
 let C = {};
@@ -32,6 +35,30 @@ C.handler_supprimer = function (cle) {
   C.recharger();
 };
 
+// OPT-A : le produit est relu à l'API pour connaître ses tailles et leur stock.
+C.handler_modifier = async function (cle) {
+  let ligne = M.lignes.find((l) => CartData.cle(l) === cle);
+  try {
+    M.edition = { cle, produit: await ProductData.fetchOne(ligne.slug) };
+    M.message = null;
+  } catch (erreur) {
+    M.edition = null;
+    M.message = { type: "erreur", texte: erreur.message };
+  }
+  V.rafraichir();
+};
+
+C.handler_enregistrer = function (cle, options) {
+  CartData.modifierOptions(cle, options);
+  M.edition = null;
+  C.recharger();
+};
+
+C.handler_annuler = function () {
+  M.edition = null;
+  V.rafraichir();
+};
+
 C.recharger = function () {
   M.lignes = CartData.lire();
   V.rafraichir();
@@ -40,6 +67,7 @@ C.recharger = function () {
 C.init = function () {
   M.lignes = CartData.lire();
   M.message = null;
+  M.edition = null;
   return V.init();
 };
 
@@ -85,9 +113,24 @@ V.createPageFragment = function () {
   let articles = M.lignes.length;
   pageFragment.querySelector('[data-role="titre"]').textContent = `Mon panier · ${articles} ${articles > 1 ? "articles" : "article"}`;
 
-  let actions = { surQuantite: C.handler_quantite, surSupprimer: C.handler_supprimer };
+  let actions = { surQuantite: C.handler_quantite, surModifier: C.handler_modifier, surSupprimer: C.handler_supprimer };
   let liste = htmlToFragment('<ul class="flex flex-col gap-3 md:gap-3.5"></ul>');
-  liste.firstElementChild.append(...M.lignes.map((ligne) => LignePanierView.dom(ligne, actions)));
+  liste.firstElementChild.append(
+    ...M.lignes.flatMap((ligne) => {
+      let cle = CartData.cle(ligne);
+      let elements = [LignePanierView.dom(ligne, actions)];
+      // Le formulaire s'ouvre sous la ligne concernée.
+      if (M.edition?.cle === cle) {
+        elements.push(
+          EditionOptionsView.dom(
+            { ligne, produit: M.edition.produit },
+            { surEnregistrer: (options) => C.handler_enregistrer(cle, options), surAnnuler: C.handler_annuler },
+          ),
+        );
+      }
+      return elements;
+    }),
+  );
   slotLignes.replaceWith(liste);
 
   let total = formaterPrix(M.lignes.reduce((somme, l) => somme + CartData.prixUnitaire(l) * l.quantite, 0));

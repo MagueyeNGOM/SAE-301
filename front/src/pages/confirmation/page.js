@@ -2,6 +2,7 @@ import { OrderData } from "../../data/order.js";
 import { formaterPrix } from "../../lib/format.js";
 import { htmlToFragment, redirect } from "../../lib/utils.js";
 import { EtapesTunnelView } from "../../ui/etapes-tunnel/index.js";
+import { LigneRecapitulatifView } from "../../ui/ligne-recapitulatif/index.js";
 import template from "./template.html?raw";
 
 /**
@@ -11,7 +12,7 @@ import template from "./template.html?raw";
  */
 
 let M = {
-  commande: null, // { numero, total, articles }, renvoyée par le serveur
+  commande: null, // { numero, total, articles, lignes }, renvoyée par le serveur
 };
 
 let C = {};
@@ -38,6 +39,9 @@ V.init = function () {
   let articles = M.commande.articles;
   pageFragment.querySelector('[data-role="resume"]').textContent =
     `${articles} ${articles > 1 ? "articles" : "article"} · Total ${formaterPrix(M.commande.total)} · Vous serez prévenu quand elle sera disponible.`;
+
+  // OPT-A : les articles commandés, avec leurs options.
+  pageFragment.querySelector('[data-role="lignes"]').append(...M.commande.lignes.map((ligne) => LigneRecapitulatifView.dom(ligne)));
 
   return pageFragment;
 };
