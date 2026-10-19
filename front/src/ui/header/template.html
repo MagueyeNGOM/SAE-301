@@ -11,8 +11,12 @@
     </nav>
 
     <div class="flex items-center gap-4">
-      <!-- shortcut: simple texte, pas de page compte avant CMD-C. -->
-      <span class="text-xs text-om-texte-discret uppercase">Mon compte</span>
+      <a href="/connexion" data-link data-role="connexion" class="text-xs text-om-texte-discret uppercase transition-colors hover:text-white aria-[current=page]:text-white">Mon compte</a>
+      <!-- Affiché seulement quand un client est connecté (voir index.js). -->
+      <span data-role="connecte" hidden class="text-xs uppercase">
+        <span data-role="nom" class="text-om-texte-discret"></span>
+        <button type="button" data-role="deconnexion" class="ml-3 uppercase text-om-texte-discret transition-colors hover:text-white">Se déconnecter</button>
+      </span>
       <a href="/panier" data-link class="rounded-[20px] bg-om-bleu-fonce px-4 py-2 text-xs font-semibold uppercase transition-colors hover:bg-om-bleu-moyen aria-[current=page]:bg-om-bleu-moyen">Panier · <span data-role="compteur">0</span></a>
     </div>
   </div>

@@ -19,6 +19,11 @@
   --color-om-texte-doux: #494f55;
   --color-om-fond: #f3f5f7;
   --color-om-texte-discret: #a4b2c0;
+  /* Champ de formulaire et boutons de la bibliothèque Figma. */
+  --color-om-fond-doux: #e5eaf0;
+  --color-om-bordure-champ: #d0d2d3;
+  --color-om-erreur: #a12a2a;
+  --color-om-erreur-fond: #fadddd;
   /* Police à confirmer avec la maquette Figma. */
   --font-om: ui-sans-serif, system-ui, sans-serif;
 }
