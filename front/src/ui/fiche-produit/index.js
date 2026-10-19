@@ -122,10 +122,13 @@ let FicheProduitView = {
 
     // Contrôle des choix : la première erreur est affichée, rien n'est ajouté.
     let verifier = function () {
-      if (produit.tailles.length > 0 && produit.tailles.every((t) => t.quantite < 1)) {
+      // Chaque produit a toujours au moins une variante avec stock (OPT-B),
+      // « Unique » pour ceux sans taille : aucune variante, ou toutes épuisées,
+      // c'est le même cas, pas une absence de contrainte.
+      if (produit.tailles.length === 0 || produit.tailles.every((t) => t.quantite < 1)) {
         return "Ce produit est épuisé.";
       }
-      if (produit.tailles.length > 0 && taille === null) {
+      if (taille === null) {
         return "Choisissez une taille.";
       }
       if (flocageActif && !NOM_FLOCAGE.test(champNom.value.trim())) {

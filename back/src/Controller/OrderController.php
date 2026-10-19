@@ -89,25 +89,27 @@ final class OrderController
                 Response::erreur('Un article de votre panier n\'est plus disponible. Retirez-le puis réessayez.', 422);
             }
 
-            // La taille doit être l'une de celles du produit, et en stock.
-            $tailleId = $demande['tailleId'];
+            // Chaque produit a toujours au moins une variante avec stock (OPT-B),
+            // « Unique » pour ceux sans taille : un produit sans aucune variante
+            // n'est pas une absence de contrainte, c'est une configuration invalide,
+            // donc jamais commandable.
             if ($produit['tailles'] === []) {
-                if ($tailleId !== null) {
-                    Response::erreur('« ' . $produit['nom'] . ' » ne se commande pas par taille.', 422);
+                Response::erreur('« ' . $produit['nom'] . ' » n\'est plus disponible.', 422);
+            }
+
+            // La taille doit être l'une des variantes du produit, et en stock.
+            $tailleId = $demande['tailleId'];
+            $taille   = null;
+            foreach ($produit['tailles'] as $t) {
+                if ($t['id'] === $tailleId) {
+                    $taille = $t;
                 }
-            } else {
-                $taille = null;
-                foreach ($produit['tailles'] as $t) {
-                    if ($t['id'] === $tailleId) {
-                        $taille = $t;
-                    }
-                }
-                if ($taille === null) {
-                    Response::erreur('Choisissez une taille pour « ' . $produit['nom'] . ' ».', 422);
-                }
-                if ($taille['quantite'] < 1) {
-                    Response::erreur('La taille ' . $taille['libelle'] . ' de « ' . $produit['nom'] . ' » est épuisée.', 422);
-                }
+            }
+            if ($taille === null) {
+                Response::erreur('Choisissez une taille pour « ' . $produit['nom'] . ' ».', 422);
+            }
+            if ($taille['quantite'] < 1) {
+                Response::erreur('La taille ' . $taille['libelle'] . ' de « ' . $produit['nom'] . ' » est épuisée.', 422);
             }
 
             // Le prix du flocage vient de la base : le produit doit en proposer un.

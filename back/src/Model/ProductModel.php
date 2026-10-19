@@ -113,7 +113,8 @@ final class ProductModel
         $produit['prixFlocage'] = $produit['prix_flocage'] === null ? null : (float) $produit['prix_flocage'];
         unset($produit['prix_flocage']);
 
-        // Tailles proposées (OPT-C) dans l'ordre XS → XXL ; quantite 0 : épuisée.
+        // Tailles proposées (OPT-C), chacune une variante avec son propre stock
+        // (OPT-B), dans l'ordre XS → XXL ; quantite 0 : épuisée.
         $tailles = $this->pdo->prepare(
             'SELECT taille.id, taille.libelle, stock.quantite
                FROM stock
