@@ -25,7 +25,8 @@ final class OrderModel
     /**
      * Enregistre une commande « en cours » et ses lignes, puis renvoie son numéro.
      *
-     * $lignes : chaque ligne porte produit_id, nom, prix et quantite, déjà lus
+     * $lignes : chaque ligne porte produit_id, nom, prix, quantite, taille_id,
+     * flocage_nom, flocage_numero et prix_flocage, déjà lus
      * en base par le contrôleur. Nom et prix sont copiés dans la ligne : un
      * changement ultérieur du catalogue ne modifie pas la commande.
      *
@@ -54,19 +55,24 @@ final class OrderModel
             $this->pdo->prepare('UPDATE commande SET numero = :numero WHERE id = :id')
                 ->execute(['numero' => $numero, 'id' => $id]);
 
-            // La taille et le flocage ne sont pas encore proposés (taille_id
-            // reste NULL, prix_flocage vaut 0 par défaut).
+            // taille_id et flocage valent NULL pour un produit sans taille ni flocage.
             $ligne = $this->pdo->prepare(
-                'INSERT INTO ligne_commande (commande_id, produit_id, nom_produit, quantite, prix_unitaire)
-                 VALUES (:commande, :produit, :nom, :quantite, :prix)'
+                'INSERT INTO ligne_commande (commande_id, produit_id, taille_id, nom_produit, quantite, prix_unitaire,
+                                             flocage_nom, flocage_numero, prix_flocage)
+                 VALUES (:commande, :produit, :taille, :nom, :quantite, :prix,
+                         :flocage_nom, :flocage_numero, :prix_flocage)'
             );
             foreach ($lignes as $l) {
                 $ligne->execute([
                     'commande' => $id,
                     'produit'  => $l['produit_id'],
+                    'taille'   => $l['taille_id'],
                     'nom'      => $l['nom'],
                     'quantite' => $l['quantite'],
                     'prix'     => number_format($l['prix'], 2, '.', ''),
+                    'flocage_nom'    => $l['flocage_nom'],
+                    'flocage_numero' => $l['flocage_numero'],
+                    'prix_flocage'   => number_format($l['prix_flocage'], 2, '.', ''),
                 ]);
             }
 

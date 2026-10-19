@@ -15,7 +15,7 @@ import template from "./template.html?raw";
  */
 
 let M = {
-  lignes: [], // lignes du panier : { slug, nom, prix, image, quantite }
+  lignes: [], // lignes du panier : { slug, nom, prix, image, quantite, taille, flocage, prixFlocage }
   message: "", // texte du bandeau d'erreur, "" si aucune erreur
   envoi: false, // true pendant l'enregistrement : évite un double clic
 };
@@ -95,7 +95,7 @@ V.createPageFragment = function () {
   pageFragment.querySelector('slot[name="etapes"]').replaceWith(EtapesTunnelView.dom({ etape: 3 }));
   pageFragment.querySelector('[data-role="lignes"]').append(...M.lignes.map((ligne) => LigneRecapitulatifView.dom(ligne)));
 
-  let total = formaterPrix(M.lignes.reduce((somme, l) => somme + l.prix * l.quantite, 0));
+  let total = formaterPrix(M.lignes.reduce((somme, l) => somme + CartData.prixUnitaire(l) * l.quantite, 0));
   let recapitulatif = RecapitulatifCommandeView.dom({ sousTotal: total, total });
   recapitulatif.querySelector('slot[name="action"]').remove();
   pageFragment.querySelector('slot[name="recapitulatif"]').replaceWith(recapitulatif);

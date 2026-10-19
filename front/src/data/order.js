@@ -9,13 +9,18 @@ let derniere = null;
 
 /**
  * Validation de la commande : POST /api/commande
- * Seuls les slugs et les quantités partent : le serveur relit les prix en base
+ * Seuls les slugs, les quantités, la taille et le flocage partent : le serveur relit les prix en base
  * et identifie le client par sa session.
  * Renvoie { numero, total, articles }.
  */
 OrderData.valider = async function (lignes) {
   let reponse = await postRequest("commande", {
-    lignes: lignes.map((l) => ({ slug: l.slug, quantite: l.quantite })),
+    lignes: lignes.map((l) => ({
+      slug: l.slug,
+      quantite: l.quantite,
+      tailleId: l.taille?.id ?? null,
+      flocage: l.flocage ? { nom: l.flocage.nom, numero: l.flocage.numero } : null,
+    })),
   });
   derniere = reponse.commande;
   return derniere;

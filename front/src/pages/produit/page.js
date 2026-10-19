@@ -26,8 +26,8 @@ C.charger = async function (slug) {
   }
 };
 
-C.handler_ajouter = function (produit) {
-  CartData.ajouter(produit);
+C.handler_ajouter = function (produit, options) {
+  CartData.ajouter(produit, options);
 };
 
 C.init = async function (params) {
