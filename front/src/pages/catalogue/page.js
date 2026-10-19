@@ -1,113 +1,71 @@
-import { FilmData } from "../../data/film.js";
+import { ProductData } from "../../data/product.js";
 import { htmlToFragment } from "../../lib/utils.js";
-import { BarreOutilsView } from "../../ui/barre-outils/index.js";
-import { GrilleFilmsView } from "../../ui/grille-films/index.js";
+import { GrilleProduitsView } from "../../ui/grille-produits/index.js";
 import { MessageView } from "../../ui/message/index.js";
-import { PaginationView } from "../../ui/pagination/index.js";
 import template from "./template.html?raw";
 
 /**
- * Page « Catalogue ».
- *
- * Au chargement, on ne précise aucun réglage : le serveur applique les
- * préférences qu'il a mémorisées. Ensuite, le tri et le nombre de films par
- * page accompagnent chaque requête, et le serveur les mémorise.
+ * Page « Catalogue » (DEC-B) : les produits de la boutique, filtrés par
+ * catégorie si l'adresse est /categorie/:slug (DEC-A).
  */
 
 let M = {
-  catalogue: null, // dernière réponse de l'API : films et réglages appliqués
+  slug: null, // catégorie de l'adresse, ou null pour tous les produits
+  categories: [], // [{ nom, slug, nombre }], pour le titre de la catégorie
+  produits: null, // liste reçue de l'API, ou null en cas d'erreur
   message: null, // { type, texte }, ou null
 };
 
 let C = {};
 
-/**
- * Demande une page du catalogue et range la réponse dans le modèle.
- * reglages ({ tri, parPage }) est facultatif, voir data/film.js.
- */
-C.charger = async function (page, reglages) {
+C.charger = async function (slug) {
+  M.slug = slug ?? null;
   try {
-    M.catalogue = await FilmData.fetchPage(page, reglages);
+    [M.categories, M.produits] = await Promise.all([ProductData.fetchCategories(), ProductData.fetchAll(M.slug)]);
     M.message = null;
   } catch (erreur) {
-    M.catalogue = null;
+    M.produits = null;
     M.message = { type: "erreur", texte: `Impossible de charger le catalogue : ${erreur.message}` };
   }
 };
 
-// Changer un réglage rend la page courante sans objet : on repart de la première.
-C.handler_changerTri = async function (tri) {
-  await C.charger(1, { tri, parPage: M.catalogue.parPage });
-  V.rafraichir();
-};
-
-C.handler_changerParPage = async function (parPage) {
-  await C.charger(1, { tri: M.catalogue.tri, parPage });
-  V.rafraichir();
-};
-
-C.handler_changerPage = async function (page) {
-  await C.charger(page, { tri: M.catalogue.tri, parPage: M.catalogue.parPage });
-  V.rafraichir();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-
-C.init = async function () {
-  await C.charger(1);
+C.init = async function (params) {
+  await C.charger(params.slug);
   return V.init();
 };
 
 let V = {};
 
-V.racine = null; // élément racine de la page affichée
-
 V.init = function () {
-  let fragment = V.createPageFragment();
-  V.racine = fragment.firstElementChild;
-  return fragment;
+  return V.createPageFragment();
 };
 
-/**
- * Reconstruit toute la page à partir du modèle, et remplace l'ancienne.
- * C'est le principe des frameworks : l'affichage se déduit de l'état, on ne le
- * retouche pas morceau par morceau.
- */
-V.rafraichir = function () {
-  let fragment = V.createPageFragment();
-  let nouvelleRacine = fragment.firstElementChild;
-  V.racine.replaceWith(fragment);
-  V.racine = nouvelleRacine;
+// Nom de la catégorie affichée, ou « Tous les produits ».
+V.titre = function () {
+  let categorie = M.categories.find((c) => c.slug === M.slug);
+  return categorie ? categorie.nom : "Tous les produits";
 };
 
 V.createPageFragment = function () {
   let pageFragment = htmlToFragment(template);
 
+  pageFragment.querySelector('slot[name="ariane"]').replaceWith(V.titre());
+  pageFragment.querySelector('slot[name="titre"]').replaceWith(V.titre());
+  let compteur = M.produits === null ? "" : `${M.produits.length} produit${M.produits.length > 1 ? "s" : ""}`;
+  pageFragment.querySelector('slot[name="compteur"]').replaceWith(compteur);
+
   pageFragment.querySelector('slot[name="message"]').replaceWith(MessageView.dom(M.message));
 
-  if (M.catalogue === null) {
-    // Rien à afficher : on retire les emplacements restants.
-    for (let slot of pageFragment.querySelectorAll("slot")) {
-      slot.remove();
-    }
-    return pageFragment;
+  let slotGrille = pageFragment.querySelector('slot[name="grille"]');
+  if (M.produits === null) {
+    slotGrille.remove();
+  } else {
+    slotGrille.replaceWith(GrilleProduitsView.dom(M.produits));
   }
-
-  pageFragment.querySelector('slot[name="barre-outils"]').replaceWith(
-    BarreOutilsView.dom(M.catalogue, {
-      surTri: C.handler_changerTri,
-      surParPage: C.handler_changerParPage,
-    })
-  );
-
-  pageFragment.querySelector('slot[name="grille"]').replaceWith(GrilleFilmsView.dom(M.catalogue.films));
-
-  pageFragment.querySelector('slot[name="pagination"]').replaceWith(
-    PaginationView.dom(M.catalogue, { surPage: C.handler_changerPage })
-  );
 
   return pageFragment;
 };
 
-export function CataloguePage() {
-  return C.init();
+export function CataloguePage(params) {
+  return C.init(params);
 }

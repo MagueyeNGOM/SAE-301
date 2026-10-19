@@ -1,15 +1,23 @@
-<header class="sticky top-0 z-10 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-  <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-6 px-6 py-3">
-    <a href="/" data-link class="text-[0.95rem] font-semibold tracking-tight">SAE301-Starter</a>
+<header class="sticky top-0 z-10 bg-om-bleu text-white">
+  <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4 md:px-10 md:py-6">
+    <a href="/" data-link class="text-[15px] font-semibold uppercase">Olympique de Marseille</a>
 
     <!-- Le routeur pose aria-current="page" sur le lien de la page affichée. -->
-    <nav class="mr-auto flex gap-5 text-sm">
-      <a href="/" data-link class="text-zinc-500 transition-colors hover:text-zinc-950 aria-[current=page]:font-medium aria-[current=page]:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 dark:aria-[current=page]:text-zinc-50">Catalogue</a>
-      <a href="/admin" data-link class="text-zinc-500 transition-colors hover:text-zinc-950 aria-[current=page]:font-medium aria-[current=page]:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 dark:aria-[current=page]:text-zinc-50">Administration</a>
+    <nav aria-label="Catégories" class="order-last flex w-full gap-6 overflow-x-auto text-xs whitespace-nowrap uppercase md:order-none md:w-auto">
+      <a href="/" data-link class="text-om-texte-discret transition-colors hover:text-white aria-[current=page]:text-white">Tout</a>
+      <a href="/categorie/maillots" data-link class="text-om-texte-discret transition-colors hover:text-white aria-[current=page]:text-white">Maillots</a>
+      <a href="/categorie/entrainement" data-link class="text-om-texte-discret transition-colors hover:text-white aria-[current=page]:text-white">Entraînement</a>
+      <a href="/categorie/supporters" data-link class="text-om-texte-discret transition-colors hover:text-white aria-[current=page]:text-white">Supporters</a>
     </nav>
 
-    <button type="button" data-action="theme" aria-label="Changer de thème" class="h-8 rounded-md border border-zinc-200 px-3 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-800">
-      Thème
-    </button>
+    <div class="flex items-center gap-4">
+      <a href="/connexion" data-link data-role="connexion" class="text-xs text-om-texte-discret uppercase transition-colors hover:text-white aria-[current=page]:text-white">Mon compte</a>
+      <!-- Affiché seulement quand un client est connecté (voir index.js). -->
+      <span data-role="connecte" hidden class="text-xs uppercase">
+        <span data-role="nom" class="text-om-texte-discret"></span>
+        <button type="button" data-role="deconnexion" class="ml-3 uppercase text-om-texte-discret transition-colors hover:text-white">Se déconnecter</button>
+      </span>
+      <a href="/panier" data-link class="rounded-[20px] bg-om-bleu-fonce px-4 py-2 text-xs font-semibold uppercase transition-colors hover:bg-om-bleu-moyen aria-[current=page]:bg-om-bleu-moyen">Panier · <span data-role="compteur">0</span></a>
+    </div>
   </div>
 </header>

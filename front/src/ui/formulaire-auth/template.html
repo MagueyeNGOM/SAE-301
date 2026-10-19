@@ -1,0 +1,19 @@
+<div class="px-4 py-1.5 md:flex md:justify-center md:px-10 md:pt-6 md:pb-[124px]">
+  <div class="flex flex-col gap-3.5 md:w-[520px] md:gap-4 md:rounded-[14px] md:bg-om-fond md:p-8">
+    <h1 class="sr-only">{{titre}}</h1>
+
+    <!-- aria-current est posé par index.js : la page se reconstruit sans passer par le routeur. -->
+    <nav aria-label="Connexion ou inscription" class="flex w-fit gap-1.5 rounded-[10px] bg-om-fond-doux p-1">
+      <a href="/connexion" data-link data-role="onglet-connexion" class="rounded-lg px-3.5 py-2.5 text-xs text-om-texte-doux aria-[current=page]:bg-white aria-[current=page]:font-semibold aria-[current=page]:text-om-texte md:px-[18px] md:py-[11px] md:text-[13px]">Se connecter</a>
+      <a href="/inscription" data-link data-role="onglet-inscription" class="rounded-lg px-3.5 py-2.5 text-xs text-om-texte-doux aria-[current=page]:bg-white aria-[current=page]:font-semibold aria-[current=page]:text-om-texte md:px-[18px] md:py-[11px] md:text-[13px]">Créer un compte</a>
+    </nav>
+
+    <form novalidate class="flex flex-col gap-3.5 md:gap-4">
+      <slot name="champs"></slot>
+
+      <p role="alert" data-role="message" class="rounded-lg bg-om-erreur-fond px-3 py-2.5 text-[11px] font-semibold text-om-erreur md:px-3.5 md:text-xs">{{message}}</p>
+
+      <button type="submit" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-om-bleu-fonce">{{bouton}}</button>
+    </form>
+  </div>
+</div>
