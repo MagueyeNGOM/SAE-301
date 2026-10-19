@@ -1,47 +1,69 @@
 @import "tailwindcss";
 
-/*
-  Le thème sombre s'active par la classe theme-dark posée sur <html> (voir
-  index.html et lib/theme.js), et non par le réglage du système : c'est ce que
-  déclare cette variante. Une classe préfixée par dark: s'applique donc dès que
-  la page est en thème sombre.
-*/
-/*
-  Charte OM (.agents/rules/charte-om.md) : couleurs reprises des variables
-  Figma. Génère bg-om-bleu, text-om-texte, font-om…
-*/
-@theme {
-  --color-om-bleu: #0061ad;
-  --color-om-bleu-fonce: #003d79;
-  --color-om-bleu-moyen: #0b4a89;
-  --color-om-bleu-clair: #2679b9;
-  --color-om-texte: #1c1c1c;
-  --color-om-texte-doux: #494f55;
-  --color-om-fond: #f3f5f7;
-  --color-om-texte-discret: #a4b2c0;
-  /* Champ de formulaire et boutons de la bibliothèque Figma. */
-  --color-om-fond-doux: #e5eaf0;
-  --color-om-bordure-champ: #d0d2d3;
-  --color-om-erreur: #a12a2a;
-  --color-om-erreur-fond: #fadddd;
-  /* Confirmation de commande (CMD-A) et message d'information. */
-  --color-om-succes: #1f7a3e;
-  --color-om-succes-fond: #ddf3e4;
-  --color-om-info: #0b6ba0;
-  /* Police à confirmer avec la maquette Figma. */
+
+@theme inline {
+  --color-om-bleu: var(--bg-principal);
+  --color-om-bleu-fonce: var(--bg-principal-fonce);
+  --color-om-bleu-moyen: var(--bg-principal-moyen);
+  --color-om-bleu-clair: var(--bg-principal-clair);
+  --color-om-texte: var(--fg-texte);
+  --color-om-texte-doux: var(--fg-texte-doux);
+  --color-om-texte-discret: var(--fg-texte-discret);
+  --color-om-fond: var(--bg-fond);
+  --color-om-fond-doux: var(--bg-fond-doux);
+  --color-om-bordure-champ: var(--border-champ);
+  --color-om-erreur: var(--fg-erreur);
+  --color-om-erreur-fond: var(--bg-erreur);
+  --color-om-succes: var(--fg-succes);
+  --color-om-succes-fond: var(--bg-succes);
+  --color-om-info: var(--fg-info);
   --font-om: ui-sans-serif, system-ui, sans-serif;
 }
 
-@custom-variant dark (&:where(.theme-dark, .theme-dark *));
-
 @layer base {
-  /* Menus déroulants et barres de défilement natifs, eux aussi en sombre. */
+
+  :root {
+    /* Primitive Tokens */
+    --clr-bleu-om: #0061ad;
+    --clr-bleu-om-fonce: #003d79;
+    --clr-bleu-om-moyen: #0b4a89;
+    --clr-bleu-om-clair: #2679b9;
+
+    --clr-noir: #1c1c1c;
+    --clr-gris-fonce: #494f55;
+    --clr-gris-clair: #a4b2c0;
+    --clr-gris-bordure: #d0d2d3;
+
+    --clr-fond: #f3f5f7;
+    --clr-fond-doux: #e5eaf0;
+
+    --clr-rouge: #a12a2a;
+    --clr-rouge-pale: #fadddd;
+    --clr-vert: #1f7a3e;
+    --clr-vert-pale: #ddf3e4;
+    --clr-bleu-info: #0b6ba0;
+
+    --bg-principal: var(--clr-bleu-om);
+    --bg-principal-fonce: var(--clr-bleu-om-fonce);
+    --bg-principal-moyen: var(--clr-bleu-om-moyen);
+    --bg-principal-clair: var(--clr-bleu-om-clair);
+    --fg-texte: var(--clr-noir);
+    --fg-texte-doux: var(--clr-gris-fonce);
+    --fg-texte-discret: var(--clr-gris-clair);
+    --bg-fond: var(--clr-fond);
+    --bg-fond-doux: var(--clr-fond-doux);
+    --border-champ: var(--clr-gris-bordure);
+    --fg-erreur: var(--clr-rouge);
+    --bg-erreur: var(--clr-rouge-pale);
+    --fg-succes: var(--clr-vert);
+    --bg-succes: var(--clr-vert-pale);
+    --fg-info: var(--clr-bleu-info);
+  }
+
   .theme-dark {
     color-scheme: dark;
   }
 
-  /* Un seul anneau de focus pour toute l'application, visible uniquement au
-     clavier : :focus-visible ne se déclenche pas sur un clic de souris. */
   :where(a, button, select, input):focus-visible {
     outline: 2px solid var(--color-zinc-400);
     outline-offset: 2px;
@@ -51,3 +73,5 @@
     cursor: pointer;
   }
 }
+
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));

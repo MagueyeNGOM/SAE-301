@@ -13,22 +13,22 @@ import template from "./template.html?raw";
  */
 
 let M = {
-  lignes: [], // lignes du panier : { slug, nom, prix, image, quantite }
+  lignes: [], // lignes du panier : { slug, nom, prix, image, quantite, taille, flocage, prixFlocage }
   message: null, // { type, texte }, ou null
 };
 
 let C = {};
 
-C.handler_quantite = function (slug, quantite) {
+C.handler_quantite = function (cle, quantite) {
   // Champ vidé ou quantité invalide : on garde la ligne, la page se reconstruit.
   if (quantite >= 1) {
-    CartData.changerQuantite(slug, quantite);
+    CartData.changerQuantite(cle, quantite);
   }
   C.recharger();
 };
 
-C.handler_supprimer = function (slug) {
-  CartData.supprimer(slug);
+C.handler_supprimer = function (cle) {
+  CartData.supprimer(cle);
   C.recharger();
 };
 
@@ -90,7 +90,7 @@ V.createPageFragment = function () {
   liste.firstElementChild.append(...M.lignes.map((ligne) => LignePanierView.dom(ligne, actions)));
   slotLignes.replaceWith(liste);
 
-  let total = formaterPrix(M.lignes.reduce((somme, l) => somme + l.prix * l.quantite, 0));
+  let total = formaterPrix(M.lignes.reduce((somme, l) => somme + CartData.prixUnitaire(l) * l.quantite, 0));
   let recapitulatif = RecapitulatifCommandeView.dom({ sousTotal: total, total });
   // La suite du tunnel : le récapitulatif vérifie la connexion (étapes 2 et 3).
   recapitulatif

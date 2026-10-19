@@ -207,8 +207,9 @@ CREATE TABLE commande (
 -- ---------------------------------------------------------------------------
 -- Lignes de commande
 --
--- taille_id : NULL tant que le choix d'une taille n'est pas proposé (CMD-A).
--- Base déjà importée : ALTER TABLE ligne_commande MODIFY taille_id TINYINT UNSIGNED NULL;
+-- taille_id : NULL pour un produit sans taille (aucune ligne dans stock). Choisie sur
+-- la fiche produit (OPT-C) et vérifiée par le serveur.
+-- Base déjà importée avant CMD-A : ALTER TABLE ligne_commande MODIFY taille_id TINYINT UNSIGNED NULL;
 -- nom_produit, prix_unitaire, prix_flocage : copiés au moment de la commande.
 -- Un changement de prix ou de nom ensuite ne modifie pas une commande passée.
 -- flocage_nom / flocage_numero : NULL sans flocage (« Flocage NGOM 10 »).

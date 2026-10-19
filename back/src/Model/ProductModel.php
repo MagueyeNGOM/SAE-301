@@ -89,6 +89,7 @@ final class ProductModel
                     produit.description,
                     produit.details,
                     produit.prix,
+                    produit.prix_flocage,
                     produit.image,
                     produit.nouveaute,
                     categorie.nom AS categorie
@@ -107,6 +108,26 @@ final class ProductModel
         $produit['id']        = (int) $produit['id'];
         $produit['prix']      = (float) $produit['prix'];
         $produit['nouveaute'] = (bool) $produit['nouveaute'];
+
+        // Prix du flocage : null si le produit ne se floque pas.
+        $produit['prixFlocage'] = $produit['prix_flocage'] === null ? null : (float) $produit['prix_flocage'];
+        unset($produit['prix_flocage']);
+
+        // Tailles proposées (OPT-C) dans l'ordre XS → XXL ; quantite 0 : épuisée.
+        $tailles = $this->pdo->prepare(
+            'SELECT taille.id, taille.libelle, stock.quantite
+               FROM stock
+         INNER JOIN taille ON taille.id = stock.taille_id
+              WHERE stock.produit_id = :id
+           ORDER BY taille.ordre'
+        );
+        $tailles->execute(['id' => $produit['id']]);
+        $produit['tailles'] = $tailles->fetchAll();
+        foreach ($produit['tailles'] as &$taille) {
+            $taille['id']       = (int) $taille['id'];
+            $taille['quantite'] = (int) $taille['quantite'];
+        }
+        unset($taille);
 
         // Galerie : les fichiers d'image dans l'ordre d'affichage.
         $images = $this->pdo->prepare(
