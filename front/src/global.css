@@ -18,6 +18,7 @@
   --color-om-texte: #1c1c1c;
   --color-om-texte-doux: #494f55;
   --color-om-fond: #f3f5f7;
+  --color-om-texte-discret: #a4b2c0;
   /* Police à confirmer avec la maquette Figma. */
   --font-om: ui-sans-serif, system-ui, sans-serif;
 }

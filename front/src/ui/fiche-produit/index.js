@@ -15,8 +15,9 @@ let FicheProduitView = {
     });
   },
 
-  dom: function (produit) {
+  dom: function (produit, actions) {
     let fragment = htmlToFragment(FicheProduitView.html(produit));
+    fragment.querySelector('[data-role="ajouter"]').addEventListener("click", () => actions.surAjouter(produit));
     let principale = fragment.querySelector('[data-role="principale"]');
     let vignettes = fragment.querySelector('[data-role="vignettes"]');
 

@@ -1,3 +1,4 @@
+import { CartData } from "../../data/cart.js";
 import { ProductData } from "../../data/product.js";
 import { htmlToFragment } from "../../lib/utils.js";
 import { FicheProduitView } from "../../ui/fiche-produit/index.js";
@@ -23,6 +24,10 @@ C.charger = async function (slug) {
     M.produit = null;
     M.message = { type: "erreur", texte: erreur.message };
   }
+};
+
+C.handler_ajouter = function (produit) {
+  CartData.ajouter(produit);
 };
 
 C.init = async function (params) {
@@ -59,7 +64,7 @@ V.createPageFragment = function () {
   if (M.produit === null) {
     slotFiche.remove();
   } else {
-    slotFiche.replaceWith(FicheProduitView.dom(M.produit));
+    slotFiche.replaceWith(FicheProduitView.dom(M.produit, { surAjouter: C.handler_ajouter }));
   }
 
   return pageFragment;
