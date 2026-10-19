@@ -7,6 +7,7 @@ let CarteProduitView = {
   html: function (produit) {
     return genericRenderer(template, {
       nom: produit.nom,
+      slug: produit.slug,
       categorie: produit.categorie,
       prix: formaterPrix(produit.prix),
       image: import.meta.env.BASE_URL + "images/produits/" + produit.image,

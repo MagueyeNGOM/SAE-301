@@ -29,6 +29,7 @@ SET NAMES utf8mb4;
 DROP TABLE IF EXISTS ligne_commande;
 DROP TABLE IF EXISTS commande;
 DROP TABLE IF EXISTS utilisateur;
+DROP TABLE IF EXISTS image_produit;
 DROP TABLE IF EXISTS stock;
 DROP TABLE IF EXISTS taille;
 DROP TABLE IF EXISTS produit;
@@ -126,6 +127,27 @@ CREATE TABLE stock (
     CONSTRAINT fk_stock_taille
         FOREIGN KEY (taille_id) REFERENCES taille (id)
         ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Galerie d'images d'un produit (fiche produit)
+--
+-- fichier : chemin relatif à front/public/images/produits/.
+-- ordre : position dans la galerie (1 = image affichée en premier).
+-- ---------------------------------------------------------------------------
+CREATE TABLE image_produit (
+    produit_id SMALLINT UNSIGNED NOT NULL,
+    ordre      TINYINT UNSIGNED  NOT NULL,
+    fichier    VARCHAR(255)      NOT NULL,
+
+    PRIMARY KEY (produit_id, ordre),
+
+    CONSTRAINT fk_image_produit
+        FOREIGN KEY (produit_id) REFERENCES produit (id)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -333,3 +355,68 @@ INSERT INTO stock (produit_id, taille_id, quantite) VALUES
 -- écrit en clair ici. Créer les comptes de test par l'inscription, ou insérer
 -- un hash produit par password_hash() en PHP, puis passer un compte en admin :
 --   UPDATE utilisateur SET role = 'admin' WHERE email = '...';
+
+-- Images de la galerie, prises sur boutique.om.fr.
+INSERT INTO image_produit (produit_id, ordre, fichier) VALUES
+    (1, 1, 'galerie/1-1.jpg'),
+    (1, 2, 'galerie/1-2.jpg'),
+    (1, 3, 'galerie/1-3.jpg'),
+    (1, 4, 'galerie/1-4.jpg'),
+    (2, 1, 'galerie/2-1.jpg'),
+    (2, 2, 'galerie/2-2.jpg'),
+    (2, 3, 'galerie/2-3.jpg'),
+    (2, 4, 'galerie/2-4.jpg'),
+    (3, 1, 'galerie/3-1.jpg'),
+    (3, 2, 'galerie/3-2.jpg'),
+    (3, 3, 'galerie/3-3.jpg'),
+    (3, 4, 'galerie/3-4.jpg'),
+    (4, 1, 'galerie/4-1.jpg'),
+    (4, 2, 'galerie/4-2.jpg'),
+    (4, 3, 'galerie/4-3.jpg'),
+    (4, 4, 'galerie/4-4.jpg'),
+    (5, 1, 'galerie/5-1.jpg'),
+    (5, 2, 'galerie/5-2.jpg'),
+    (5, 3, 'galerie/5-3.jpg'),
+    (5, 4, 'galerie/5-4.jpg'),
+    (6, 1, 'galerie/6-1.jpg'),
+    (6, 2, 'galerie/6-2.jpg'),
+    (6, 3, 'galerie/6-3.jpg'),
+    (6, 4, 'galerie/6-4.jpg'),
+    (7, 1, 'galerie/7-1.jpg'),
+    (7, 2, 'galerie/7-2.jpg'),
+    (7, 3, 'galerie/7-3.jpg'),
+    (7, 4, 'galerie/7-4.jpg'),
+    (8, 1, 'galerie/8-1.jpg'),
+    (8, 2, 'galerie/8-2.jpg'),
+    (8, 3, 'galerie/8-3.jpg'),
+    (8, 4, 'galerie/8-4.jpg'),
+    (9, 1, 'galerie/9-1.jpg'),
+    (9, 2, 'galerie/9-2.jpg'),
+    (9, 3, 'galerie/9-3.jpg'),
+    (9, 4, 'galerie/9-4.jpg'),
+    (10, 1, 'galerie/10-1.jpg'),
+    (10, 2, 'galerie/10-2.jpg'),
+    (10, 3, 'galerie/10-3.jpg'),
+    (10, 4, 'galerie/10-4.jpg'),
+    (11, 1, 'galerie/11-1.jpg'),
+    (11, 2, 'galerie/11-2.jpg'),
+    (11, 3, 'galerie/11-3.jpg'),
+    (11, 4, 'galerie/11-4.jpg'),
+    (12, 1, 'galerie/12-1.jpg'),
+    (12, 2, 'galerie/12-2.jpg'),
+    (12, 3, 'galerie/12-3.jpg'),
+    (12, 4, 'galerie/12-4.jpg'),
+    (13, 1, 'galerie/13-1.jpg'),
+    (13, 2, 'galerie/13-2.jpg'),
+    (13, 3, 'galerie/13-3.jpg'),
+    (13, 4, 'galerie/13-4.jpg'),
+    (14, 1, 'galerie/14-1.jpg'),
+    (14, 2, 'galerie/14-2.jpg'),
+    (15, 1, 'galerie/15-1.jpg'),
+    (16, 1, 'galerie/16-1.jpg'),
+    (16, 2, 'galerie/16-2.jpg'),
+    (17, 1, 'galerie/17-1.jpg'),
+    (18, 1, 'galerie/18-1.jpg'),
+    (18, 2, 'galerie/18-2.jpg'),
+    (19, 1, 'galerie/19-1.jpg'),
+    (19, 2, 'galerie/19-2.jpg');

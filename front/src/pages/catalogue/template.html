@@ -1,5 +1,14 @@
 <section class="mx-auto max-w-6xl px-4 pt-8 pb-16 md:px-6">
-  <h1 class="mb-6 text-2xl font-bold tracking-tight text-om-texte">Catalogue</h1>
+  <nav aria-label="Fil d'Ariane" class="mb-2 text-sm text-om-texte-doux">
+    <a href="/" data-link class="underline underline-offset-4">Accueil</a>
+    <span aria-hidden="true"> / </span>
+    <span aria-current="location"><slot name="ariane"></slot></span>
+  </nav>
+
+  <div class="mb-6 flex items-baseline justify-between gap-4">
+    <h1 class="text-3xl font-bold tracking-tight text-om-texte"><slot name="titre"></slot></h1>
+    <p class="text-sm text-om-texte-doux"><slot name="compteur"></slot></p>
+  </div>
 
   <slot name="message"></slot>
   <slot name="grille"></slot>

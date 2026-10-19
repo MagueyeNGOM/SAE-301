@@ -22,10 +22,34 @@ final class ProductModel
     }
 
     /**
-     * Tous les produits du catalogue, avec le nom de leur catégorie.
+     * Les catégories avec leur nombre de produits, dans l'ordre du menu (DEC-A).
+     */
+    public function categories(): array
+    {
+        $categories = $this->pdo->query(
+            'SELECT categorie.nom,
+                    categorie.slug,
+                    COUNT(produit.id) AS nombre
+               FROM categorie
+          LEFT JOIN produit ON produit.categorie_id = categorie.id
+           GROUP BY categorie.id, categorie.nom, categorie.slug, categorie.ordre
+           ORDER BY categorie.ordre'
+        )->fetchAll();
+
+        // MySQL renvoie des chaînes : on convertit pour avoir de vrais nombres en JSON.
+        foreach ($categories as &$categorie) {
+            $categorie['nombre'] = (int) $categorie['nombre'];
+        }
+
+        return $categories;
+    }
+
+    /**
+     * Les produits du catalogue, avec le nom de leur catégorie.
+     * Si $categorie (slug) est donné, seuls ceux de cette catégorie.
      * Seuls les champs utiles à la carte produit sont renvoyés.
      */
-    public function lister(): array
+    public function lister(?string $categorie = null): array
     {
         $sql = 'SELECT produit.id,
                        produit.nom,
@@ -36,9 +60,12 @@ final class ProductModel
                        categorie.nom AS categorie
                   FROM produit
             INNER JOIN categorie ON categorie.id = produit.categorie_id
+             WHERE :tous IS NULL OR categorie.slug = :categorie
               ORDER BY categorie.ordre, produit.nom';
 
-        $produits = $this->pdo->query($sql)->fetchAll();
+        $requete = $this->pdo->prepare($sql);
+        $requete->execute(['tous' => $categorie, 'categorie' => $categorie]);
+        $produits = $requete->fetchAll();
 
         // MySQL renvoie des chaînes : on convertit pour avoir de vrais nombres en JSON.
         foreach ($produits as &$produit) {
@@ -48,6 +75,47 @@ final class ProductModel
         }
 
         return $produits;
+    }
+
+    /**
+     * La fiche d'un produit à partir de son slug, ou null s'il n'existe pas.
+     */
+    public function trouver(string $slug): ?array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT produit.id,
+                    produit.nom,
+                    produit.slug,
+                    produit.description,
+                    produit.details,
+                    produit.prix,
+                    produit.image,
+                    produit.nouveaute,
+                    categorie.nom AS categorie
+               FROM produit
+         INNER JOIN categorie ON categorie.id = produit.categorie_id
+              WHERE produit.slug = :slug'
+        );
+        $requete->execute(['slug' => $slug]);
+        $produit = $requete->fetch();
+
+        if ($produit === false) {
+            return null;
+        }
+
+        // MySQL renvoie des chaînes : on convertit pour avoir de vrais nombres en JSON.
+        $produit['id']        = (int) $produit['id'];
+        $produit['prix']      = (float) $produit['prix'];
+        $produit['nouveaute'] = (bool) $produit['nouveaute'];
+
+        // Galerie : les fichiers d'image dans l'ordre d'affichage.
+        $images = $this->pdo->prepare(
+            'SELECT fichier FROM image_produit WHERE produit_id = :id ORDER BY ordre'
+        );
+        $images->execute(['id' => $produit['id']]);
+        $produit['images'] = $images->fetchAll(PDO::FETCH_COLUMN);
+
+        return $produit;
     }
 
     /**

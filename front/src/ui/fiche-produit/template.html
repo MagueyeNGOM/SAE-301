@@ -1,0 +1,15 @@
+<article class="grid gap-6 md:grid-cols-2 md:gap-10">
+  <div class="flex flex-col gap-3">
+    <img data-role="principale" class="aspect-square w-full rounded-lg bg-white object-contain" src="{{image}}" alt="{{nom}}" width="600" height="600">
+    <ul data-role="vignettes" class="flex gap-2"></ul>
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <p class="text-xs font-medium tracking-wide text-om-texte-doux uppercase">{{categorie}}</p>
+    <h1 class="text-2xl font-bold tracking-tight text-om-texte">{{nom}}</h1>
+    <p class="text-2xl font-bold text-om-bleu">{{prix}}</p>
+    <p class="text-om-texte">{{description}}</p>
+    <p class="text-sm text-om-texte-doux">{{details}}</p>
+    <button type="button" class="mt-2 rounded-lg bg-om-bleu px-5 py-3 font-semibold text-white transition-colors hover:bg-om-bleu-fonce">Ajouter au panier</button>
+  </div>
+</article>
