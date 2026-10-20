@@ -2,6 +2,7 @@ import { ProductData } from "../../data/product.js";
 import { formaterPrix } from "../../lib/format.js";
 import { genericRenderer, htmlToFragment } from "../../lib/utils.js";
 import { MessageView } from "../../ui/message/index.js";
+import { PastilleStockView } from "../../ui/pastille-stock/index.js";
 import template from "./template.html?raw";
 import templateCarte from "./carte.html?raw";
 
@@ -12,27 +13,8 @@ import templateCarte from "./carte.html?raw";
 
 const IMAGES = import.meta.env.BASE_URL + "images/produits/";
 
-// Pastilles de la maquette. shortcut: l'API ne donne pas le stock, les pastilles
-// sont fixées ici ; à remplacer par le vrai stock quand l'API l'expose.
-const BADGES = {
-  stock: { texte: "En stock", classes: "bg-om-succes-fond text-om-succes" },
-  bientot: { texte: "Bientôt épuisé", classes: "bg-amber-100 text-amber-800" },
-  epuise: { texte: "Épuisé", classes: "bg-om-fond-doux text-om-texte-doux" },
-};
-
-// Sélection de la maquette : fichier image du produit et pastille.
-const DISPONIBLES = [
-  ["maillot-domicile-26-27.png", "stock"],
-  ["maillot-exterieur-26-27.png", "stock"],
-  ["maillot-entrainement-26-27.png", "stock"],
-  ["echarpe-droit-au-but.png", "stock"],
-];
-const DERNIERES = [
-  ["maillot-third-26-27.png", "bientot"],
-  ["veste-survetement-26-27.png", "bientot"],
-  ["echarpe-om-navy.png", "bientot"],
-  ["maillot-om-king.png", "epuise"],
-];
+// Nombre de produits par section de la maquette.
+const NB_PAR_SECTION = 4;
 
 let M = {
   produits: null, // liste reçue de l'API, ou null en cas d'erreur
@@ -58,26 +40,20 @@ V.init = function () {
   return V.createPageFragment();
 };
 
-// Cartes de la sélection ; un produit absent de l'API est simplement ignoré.
-V.cartes = function (selection) {
-  let cartes = [];
-  for (let [image, badge] of selection) {
-    let produit = M.produits.find((p) => p.image === image);
-    if (!produit) continue;
-    cartes.push(
-      htmlToFragment(
-        genericRenderer(templateCarte, {
-          slug: produit.slug,
-          nom: produit.nom,
-          prix: formaterPrix(produit.prix),
-          image: IMAGES + produit.image,
-          badge: BADGES[badge].texte,
-          badgeClasses: BADGES[badge].classes,
-        }),
-      ),
+// Une carte par produit, avec la pastille de son stock réel (STK-B).
+V.cartes = function (produits) {
+  return produits.map((produit) => {
+    let carte = htmlToFragment(
+      genericRenderer(templateCarte, {
+        slug: produit.slug,
+        nom: produit.nom,
+        prix: formaterPrix(produit.prix),
+        image: IMAGES + produit.image,
+      }),
     );
-  }
-  return cartes;
+    carte.querySelector('slot[name="stock"]').replaceWith(PastilleStockView.dom(produit.stock));
+    return carte;
+  });
 };
 
 V.createPageFragment = function () {
@@ -96,8 +72,17 @@ V.createPageFragment = function () {
     slotDisponibles.remove();
     slotDernieres.remove();
   } else {
-    slotDisponibles.replaceWith(...V.cartes(DISPONIBLES));
-    slotDernieres.replaceWith(...V.cartes(DERNIERES));
+    // « Disponible maintenant » : produits en stock ; « Dernières pièces » : les autres.
+    slotDisponibles.replaceWith(...V.cartes(M.produits.filter((p) => p.stock === "en_stock").slice(0, NB_PAR_SECTION)));
+    slotDernieres.replaceWith(...V.cartes(M.produits.filter((p) => p.stock !== "en_stock").slice(0, NB_PAR_SECTION)));
+
+    let hero = M.produits.find((p) => p.slug === "maillot-domicile-26-27");
+    let slotHero = pageFragment.querySelector('slot[name="stock-hero"]');
+    if (hero) {
+      slotHero.replaceWith(PastilleStockView.dom(hero.stock));
+    } else {
+      slotHero.remove();
+    }
   }
 
   return pageFragment;

@@ -1,7 +1,7 @@
 <a href="/produit/{{slug}}" data-link class="flex flex-col gap-3">
   <div class="relative overflow-hidden rounded-xl bg-om-fond">
     <img class="aspect-square w-full object-contain" src="{{image}}" alt="" width="400" height="400" loading="lazy">
-    <span class="absolute top-3 left-3 rounded px-2 py-1 text-[10px] font-semibold uppercase {{badgeClasses}}">{{badge}}</span>
+    <div class="absolute top-3 left-3"><slot name="stock"></slot></div>
   </div>
   <div class="flex items-start justify-between gap-2 text-sm">
     <h3 class="font-medium text-om-texte">{{nom}}</h3>

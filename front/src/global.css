@@ -29,6 +29,8 @@
   --color-om-succes: var(--fg-succes);
   --color-om-succes-fond: var(--bg-succes);
   --color-om-info: var(--fg-info);
+  --color-om-attention: var(--fg-attention);
+  --color-om-attention-fond: var(--bg-attention);
   --font-om: ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -54,6 +56,8 @@
     --clr-vert: #1f7a3e;
     --clr-vert-pale: #ddf3e4;
     --clr-bleu-info: #0b6ba0;
+    --clr-orange: #92400e;
+    --clr-orange-pale: #fef3c7;
 
     --bg-principal: var(--clr-bleu-om);
     --bg-principal-fonce: var(--clr-bleu-om-fonce);
@@ -70,6 +74,8 @@
     --fg-succes: var(--clr-vert);
     --bg-succes: var(--clr-vert-pale);
     --fg-info: var(--clr-bleu-info);
+    --fg-attention: var(--clr-orange);
+    --bg-attention: var(--clr-orange-pale);
   }
 
   .theme-dark {

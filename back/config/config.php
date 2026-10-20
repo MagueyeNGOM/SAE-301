@@ -29,6 +29,10 @@ return [
         'motdepasse'  => 'ngom14',
     ],
 
+    // STK-B : jusqu'à ce nombre de pièces (toutes tailles confondues),
+    // un produit est « Bientôt épuisé ».
+    'seuil_stock' => 5,
+
     // En développement, les erreurs sont détaillées dans la réponse JSON.
     // À passer à false en production.
     'debug' => true,

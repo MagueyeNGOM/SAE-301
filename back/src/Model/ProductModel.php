@@ -16,9 +16,26 @@ final class ProductModel
     /** Connexion à la base, fournie à la construction. */
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
+    /** Stock total en dessous duquel un produit est « Bientôt épuisé » (STK-B). */
+    private int $seuilStock;
+
+    public function __construct(PDO $pdo, int $seuilStock)
     {
         $this->pdo = $pdo;
+        $this->seuilStock = $seuilStock;
+    }
+
+    /**
+     * État du stock d'un produit à partir de sa quantité totale (STK-B) :
+     * « epuise », « bientot » ou « en_stock ».
+     */
+    private function etatStock(int $quantite): string
+    {
+        if ($quantite < 1) {
+            return 'epuise';
+        }
+
+        return $quantite <= $this->seuilStock ? 'bientot' : 'en_stock';
     }
 
     /**
@@ -57,7 +74,10 @@ final class ProductModel
                        produit.prix,
                        produit.image,
                        produit.nouveaute,
-                       categorie.nom AS categorie
+                       categorie.nom AS categorie,
+                       (SELECT COALESCE(SUM(stock.quantite), 0)
+                          FROM stock
+                         WHERE stock.produit_id = produit.id) AS quantite_stock
                   FROM produit
             INNER JOIN categorie ON categorie.id = produit.categorie_id
              WHERE :tous IS NULL OR categorie.slug = :categorie
@@ -72,6 +92,8 @@ final class ProductModel
             $produit['id']        = (int) $produit['id'];
             $produit['prix']      = (float) $produit['prix'];
             $produit['nouveaute'] = (bool) $produit['nouveaute'];
+            $produit['stock']     = $this->etatStock((int) $produit['quantite_stock']);
+            unset($produit['quantite_stock']);
         }
 
         return $produits;
@@ -129,6 +151,9 @@ final class ProductModel
             $taille['quantite'] = (int) $taille['quantite'];
         }
         unset($taille);
+
+        // État global du produit : somme des stocks de ses tailles (STK-B).
+        $produit['stock'] = $this->etatStock(array_sum(array_column($produit['tailles'], 'quantite')));
 
         // Galerie : les fichiers d'image dans l'ordre d'affichage.
         $images = $this->pdo->prepare(
