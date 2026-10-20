@@ -1,120 +1,131 @@
-import { AuthData } from "../../data/auth.js";
+import { AdminAuthData } from "../../data/admin-auth.js";
 import { StatsData } from "../../data/stats.js";
-import { htmlToFragment } from "../../lib/utils.js";
+import { genericRenderer, htmlToFragment, redirect } from "../../lib/utils.js";
 import { FormulaireConnexionView } from "../../ui/formulaire-connexion/index.js";
-import { MessageView } from "../../ui/message/index.js";
 import { StatistiquesView } from "../../ui/statistiques/index.js";
 import template from "./template.html?raw";
+import sectionTemplate from "./section.html?raw";
+import { CategoriesSection } from "./categories/index.js";
 
-/**
- * Page « Administration ».
- *
- * La page ne protège rien : le formulaire et la zone de statistiques sont
- * toujours là. C'est le serveur qui décide de l'accès, et la page affiche sa
- * réponse : 200 avec les statistiques, 401 ou 403 sinon.
- */
-
-let M = {
-  login: "", // dernier identifiant saisi, pour pré-remplir le formulaire
-  stats: null, // statistiques, si le serveur les a fournies
-  message: null, // { type, texte }, ou null
+const sections = {
+  categories: "Catégories",
+  produits: "Produits",
+  commandes: "Commandes",
+  statistiques: "Statistiques",
 };
 
-let C = {};
+// Chaque navigation possède son état pour éviter les réponses d'une ancienne page.
+export async function AdminPage({ section = "" } = {}) {
+  const M = { session: null, stats: null, email: "", message: "", busy: false };
+  const C = {};
+  const V = { root: null };
+  const categories = CategoriesSection((error) => {
+    M.session = { connecte: false };
+    M.message = error.message;
+    V.refresh();
+  });
 
-/**
- * Demande les statistiques. Le résultat dépend de ce que décide le serveur.
- */
-C.chargerStats = async function () {
-  try {
-    M.stats = await StatsData.fetch();
-  } catch (erreur) {
-    M.stats = null;
+  C.load = async function () {
+    try {
+      M.session = await AdminAuthData.me();
+      if (M.session.connecte && section === "") M.stats = await StatsData.fetch();
+      if (M.session.connecte && section === "categories") await categories.load();
+    } catch (error) {
+      if (error.statut === 401 || error.statut === 403) M.session = { connecte: false };
+      M.message = error.message;
+    }
+  };
 
-    let texte = erreur.message;
-    if (erreur.statut === 401) texte = "Vous n'êtes pas connecté.";
-    if (erreur.statut === 403) texte = "Accès réservé aux administrateurs.";
+  C.login = async function (email, password) {
+    if (M.busy) return;
+    M.email = email.trim();
+    M.message = "";
+    if (!/^\S+@\S+\.\S+$/.test(M.email) || M.email.length > 190) {
+      M.message = "Saisissez une adresse e-mail valide.";
+    } else if (!password || new TextEncoder().encode(password).length > 72) {
+      M.message = "Saisissez votre mot de passe (72 octets maximum).";
+    } else {
+      M.busy = true;
+      V.refresh();
+      try {
+        await AdminAuthData.login(M.email, password);
+        redirect(section ? `/admin/${section}` : "/admin");
+        return;
+      } catch (error) {
+        M.message = error.message;
+      } finally {
+        M.busy = false;
+      }
+    }
+    V.refresh();
+    V.root.querySelector('[role="alert"]')?.focus();
+  };
 
-    M.message = { type: "erreur", texte };
-  }
-};
+  C.logout = async function () {
+    if (M.busy) return;
+    M.busy = true;
+    V.refresh();
+    try {
+      await AdminAuthData.logout();
+      redirect("/admin");
+    } catch (error) {
+      M.message = error.message;
+      M.busy = false;
+      V.refresh();
+    }
+  };
 
-C.handler_connexion = async function (login, mdp) {
-  M.login = login;
+  V.create = function () {
+    const fragment = htmlToFragment(template);
+    const connected = M.session?.connecte === true;
+    fragment.firstElementChild.dataset.authenticated = String(connected);
+    fragment.querySelector("main").dataset.login = String(!connected);
+    fragment.querySelector("nav").hidden = !connected;
+    const logout = fragment.querySelector('[data-action="logout"]');
+    logout.hidden = !connected;
+    logout.disabled = M.busy;
+    logout.addEventListener("click", C.logout);
+    const alert = fragment.querySelector('[role="alert"]');
+    alert.textContent = M.message;
+    alert.hidden = !M.message;
 
-  try {
-    await AuthData.login(login, mdp);
-    M.message = { type: "succes", texte: `Connecté en tant que ${login}.` };
-    // La requête suivante transporte le cookie de session reçu à l'instant.
-    await C.chargerStats();
-  } catch (erreur) {
-    M.message = { type: "erreur", texte: erreur.message };
-  }
+    let content;
+    if (!connected) {
+      content = FormulaireConnexionView.dom({ login: M.email, busy: M.busy }, { surConnexion: C.login });
+      alert.classList.remove("mb-4");
+      content.querySelector("form").insertBefore(alert, content.querySelector("button"));
+    } else if (section === "") {
+      content = StatistiquesView.dom(M.stats);
+    } else if (section === "categories") {
+      content = categories.dom();
+    } else {
+      content = htmlToFragment(genericRenderer(sectionTemplate, {
+        title: Object.hasOwn(sections, section) ? sections[section] : "Page introuvable",
+        description: Object.hasOwn(sections, section)
+          ? "À venir : cette section sera disponible dans une prochaine étape."
+          : "Cette section d’administration n’existe pas.",
+      }));
+    }
+    fragment.querySelector('slot[name="content"]').replaceWith(content);
+    // La reconstruction d'une page doit conserver les URL avec le chemin du projet.
+    for (const link of fragment.querySelectorAll("a[data-link]")) {
+      const path = link.getAttribute("href");
+      link.setAttribute("href", import.meta.env.BASE_URL.replace(/\/$/, "") + path);
+      if (path === (section ? `/admin/${section}` : "/admin")) link.setAttribute("aria-current", "page");
+    }
+    return fragment;
+  };
 
-  V.rafraichir();
-};
+  V.refresh = function () {
+    if (!V.root?.isConnected) return;
+    const fragment = V.create();
+    const root = fragment.firstElementChild;
+    V.root.replaceWith(fragment);
+    V.root = root;
+  };
 
-C.handler_deconnexion = async function () {
-  try {
-    await AuthData.logout();
-    M.message = null;
-    // On redemande les statistiques : c'est la réponse du serveur, et non le
-    // clic, qui dit si la déconnexion a réellement eu lieu.
-    await C.chargerStats();
-  } catch (erreur) {
-    M.message = { type: "erreur", texte: erreur.message };
-  }
-
-  V.rafraichir();
-};
-
-C.init = async function () {
-  M.message = null;
-  await C.chargerStats();
-  return V.init();
-};
-
-let V = {};
-
-V.racine = null; // élément racine de la page affichée
-
-V.init = function () {
-  let fragment = V.createPageFragment();
-  V.racine = fragment.firstElementChild;
+  await C.load();
+  const fragment = V.create();
+  V.root = fragment.firstElementChild;
   return fragment;
-};
-
-// Même principe que la page Catalogue : toute la page se reconstruit à partir
-// du modèle. L'identifiant saisi survit parce qu'il est dans le modèle.
-V.rafraichir = function () {
-  let fragment = V.createPageFragment();
-  let nouvelleRacine = fragment.firstElementChild;
-  V.racine.replaceWith(fragment);
-  V.racine = nouvelleRacine;
-};
-
-V.createPageFragment = function () {
-  let pageFragment = htmlToFragment(template);
-
-  pageFragment.querySelector('slot[name="connexion"]').replaceWith(
-    FormulaireConnexionView.dom(
-      { login: M.login },
-      { surConnexion: C.handler_connexion, surDeconnexion: C.handler_deconnexion }
-    )
-  );
-
-  pageFragment.querySelector('slot[name="message"]').replaceWith(MessageView.dom(M.message));
-
-  let slotStats = pageFragment.querySelector('slot[name="statistiques"]');
-  if (M.stats === null) {
-    slotStats.remove();
-  } else {
-    slotStats.replaceWith(StatistiquesView.dom(M.stats));
-  }
-
-  return pageFragment;
-};
-
-export function AdminPage() {
-  return C.init();
 }

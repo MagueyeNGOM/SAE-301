@@ -17,10 +17,13 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
 use App\Controller\AuthController;
+use App\Controller\AdminAuthController;
 use App\Controller\CatalogueController;
+use App\Controller\CategoryController;
 use App\Controller\OrderController;
 use App\Controller\StatsController;
 use App\Model\OrderModel;
+use App\Model\CategoryModel;
 use App\Model\ProductModel;
 use App\Model\UserModel;
 
@@ -63,12 +66,15 @@ try {
     // Les dépendances sont créées explicitement : le modèle reçoit la connexion,
     // le contrôleur reçoit le modèle. Aucune magie, tout est lisible ici.
     $produits = new ProductModel($pdo, $config['seuil_stock']);
+    $orders = new OrderModel($pdo);
 
     $controleurs = [
         CatalogueController::class => new CatalogueController($produits),
+        CategoryController::class  => new CategoryController(new CategoryModel($pdo)),
         AuthController::class      => new AuthController(new UserModel($pdo)),
-        OrderController::class     => new OrderController(new OrderModel($pdo), $produits),
-        StatsController::class     => new StatsController($produits),
+        AdminAuthController::class => new AdminAuthController(new UserModel($pdo)),
+        OrderController::class     => new OrderController($orders, $produits),
+        StatsController::class     => new StatsController($produits, $orders),
     ];
 
     $routes = require __DIR__ . '/src/routes.php';
@@ -79,8 +85,21 @@ try {
     // part ailleurs.
     ini_set('session.use_strict_mode', '1');
 
+    $request = Request::depuisGlobals();
+    $isAdmin = $request->chemin() === '/api/admin' || str_starts_with($request->chemin(), '/api/admin/');
+    if ($isAdmin) {
+        session_name('OMADMINSESSID');
+        header('Cache-Control: no-store');
+        // Exiger du JSON empêche un formulaire d'un autre site d'envoyer ces actions.
+        if ($request->methode() !== 'GET'
+            && (!preg_match('~^application/json(?:\s*;|$)~i', $_SERVER['CONTENT_TYPE'] ?? '')
+                || ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site')) {
+            Response::erreur('Requête administrateur non autorisée.', 403);
+        }
+    }
+
     session_set_cookie_params([
-        'path'     => $config['chemin'],
+        'path'     => $isAdmin ? rtrim($config['chemin'], '/') . '/api/admin' : $config['chemin'],
         'httponly' => true,
         'secure'   => true,
         'samesite' => 'Lax',
@@ -88,7 +107,14 @@ try {
 
     session_start();
 
-    (new Router($routes, $controleurs))->traiter(Request::depuisGlobals());
+    // Toutes les données et futures actions admin partagent le même contrôle.
+    if ($isAdmin && !in_array($request->signature(), [
+        'POST /api/admin/login', 'GET /api/admin/me', 'POST /api/admin/logout',
+    ], true)) {
+        AdminAuthController::requireAdmin();
+    }
+
+    (new Router($routes, $controleurs))->traiter($request);
 } catch (Throwable $e) {
     Response::json(
         [

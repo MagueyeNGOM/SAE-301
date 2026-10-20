@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Controller\AuthController;
+use App\Controller\AdminAuthController;
 use App\Controller\CatalogueController;
+use App\Controller\CategoryController;
 use App\Controller\OrderController;
 use App\Controller\StatsController;
 
@@ -26,5 +28,11 @@ return [
     'GET  /api/me'          => [AuthController::class,      'me'],
     'POST /api/logout'      => [AuthController::class,      'logout'],
     'POST /api/commande'    => [OrderController::class,     'creer'],
-    'GET  /api/admin/stats'=> [StatsController::class,     'index'],
+    'POST /api/admin/login' => [AdminAuthController::class, 'login'],
+    'GET  /api/admin/me'    => [AdminAuthController::class, 'me'],
+    'POST /api/admin/logout'=> [AdminAuthController::class, 'logout'],
+    'GET  /api/admin/stats' => [StatsController::class,     'index'],
+    'GET  /api/admin/categories' => [CategoryController::class, 'index'],
+    'POST /api/admin/categories/save' => [CategoryController::class, 'save'],
+    'POST /api/admin/categories/delete' => [CategoryController::class, 'delete'],
 ];

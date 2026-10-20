@@ -1,0 +1,11 @@
+<li class="flex min-w-0 flex-wrap items-center justify-between gap-4 rounded-xl bg-om-fond p-admin-header">
+  <div class="min-w-0 flex-1 basis-48 wrap-anywhere">
+    <h2 class="text-[15px] font-semibold [font-family:inherit]">{{nom}}</h2>
+    <p class="mt-0.5 text-xs text-om-texte-doux">{{description}}</p>
+  </div>
+  <div class="flex flex-wrap items-center gap-4 text-xs">
+    <span class="text-om-texte-doux">{{nombre}} {{unit}}</span>
+    <button type="button" data-action="edit" class="font-semibold text-om-bleu hover:underline disabled:opacity-65" aria-label="Modifier la catégorie {{nom}}">Modifier</button>
+    <button type="button" data-action="delete" class="text-om-texte-doux hover:underline disabled:opacity-65" aria-label="Supprimer la catégorie {{nom}}">Supprimer</button>
+  </div>
+</li>

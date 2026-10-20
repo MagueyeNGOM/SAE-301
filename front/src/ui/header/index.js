@@ -1,12 +1,11 @@
 import { AuthData } from "../../data/auth.js";
 import { CartData } from "../../data/cart.js";
-import { htmlToFragment, redirect } from "../../lib/utils.js";
+import { ProductData } from "../../data/product.js";
+import { genericRenderer, htmlToFragment, redirect } from "../../lib/utils.js";
 import template from "./template.html?raw";
+import categoryTemplate from "./category.html?raw";
 
-// HeaderView : en-tête de la boutique avec le menu des catégories (DEC-A) et
-// le panier avec son compteur d'articles (CMD-B). shortcut: slugs écrits en
-// dur comme en base, à charger depuis l'API si les catégories deviennent
-// modifiables (GOF-C).
+// Les catégories sont relues à chaque navigation pour refléter GOF-C.
 let HeaderView = {
   html: function () {
     return template;
@@ -14,6 +13,20 @@ let HeaderView = {
 
   dom: function () {
     let fragment = htmlToFragment(template);
+    const categorySlot = fragment.querySelector('slot[name="categories"]');
+    ProductData.fetchCategories().then((categories) => {
+      const links = document.createDocumentFragment();
+      for (const category of categories) {
+        // Le chargement est asynchrone : le routeur a déjà complété les autres liens.
+        const href = import.meta.env.BASE_URL + "categorie/" + encodeURIComponent(category.slug);
+        const item = htmlToFragment(genericRenderer(categoryTemplate, { href, nom: category.nom }));
+        if (window.location.pathname === href) item.querySelector("a").setAttribute("aria-current", "page");
+        links.append(item);
+      }
+      categorySlot.replaceWith(links);
+    }).catch(() => {
+      categorySlot.replaceWith(document.createTextNode("Catégories indisponibles"));
+    });
     let compteur = fragment.querySelector('[data-role="compteur"]');
     let majCompteur = () => (compteur.textContent = CartData.compter());
     majCompteur();
