@@ -6,6 +6,7 @@ import { StatistiquesView } from "../../ui/statistiques/index.js";
 import template from "./template.html?raw";
 import sectionTemplate from "./section.html?raw";
 import { CategoriesSection } from "./categories/index.js";
+import { ProductsSection } from "./products/index.js";
 
 const sections = {
   categories: "Catégories",
@@ -24,12 +25,18 @@ export async function AdminPage({ section = "" } = {}) {
     M.message = error.message;
     V.refresh();
   });
+  const products = ProductsSection((error) => {
+    M.session = { connecte: false };
+    M.message = error.message;
+    V.refresh();
+  });
 
   C.load = async function () {
     try {
       M.session = await AdminAuthData.me();
       if (M.session.connecte && section === "") M.stats = await StatsData.fetch();
       if (M.session.connecte && section === "categories") await categories.load();
+      if (M.session.connecte && section === "produits") await products.load();
     } catch (error) {
       if (error.statut === 401 || error.statut === 403) M.session = { connecte: false };
       M.message = error.message;
@@ -98,6 +105,8 @@ export async function AdminPage({ section = "" } = {}) {
       content = StatistiquesView.dom(M.stats);
     } else if (section === "categories") {
       content = categories.dom();
+    } else if (section === "produits") {
+      content = products.dom();
     } else {
       content = htmlToFragment(genericRenderer(sectionTemplate, {
         title: Object.hasOwn(sections, section) ? sections[section] : "Page introuvable",

@@ -1,4 +1,4 @@
-import { getRequest } from "../lib/api-request.js";
+import { getRequest, postRequest } from "../lib/api-request.js";
 
 let ProductData = {};
 
@@ -28,5 +28,10 @@ ProductData.fetchOne = async function (slug) {
   let reponse = await getRequest("produit?slug=" + encodeURIComponent(slug));
   return reponse.produit;
 };
+
+ProductData.adminAll = () => getRequest("admin/produits");
+ProductData.adminFind = (id) => getRequest("admin/produit?id=" + encodeURIComponent(id));
+ProductData.save = (product) => postRequest("admin/produits/save", product);
+ProductData.delete = (id) => postRequest("admin/produits/delete", { id, confirmed: true });
 
 export { ProductData };

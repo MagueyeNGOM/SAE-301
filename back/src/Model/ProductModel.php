@@ -29,13 +29,13 @@ final class ProductModel
      * État du stock d'un produit à partir de sa quantité totale (STK-B) :
      * « epuise », « bientot » ou « en_stock ».
      */
-    private function etatStock(int $quantite): string
+    private function etatStock(int $quantite, ?int $threshold = null): string
     {
         if ($quantite < 1) {
             return 'epuise';
         }
 
-        return $quantite <= $this->seuilStock ? 'bientot' : 'en_stock';
+        return $quantite <= ($threshold ?? $this->seuilStock) ? 'bientot' : 'en_stock';
     }
 
     /**
@@ -74,6 +74,7 @@ final class ProductModel
                        produit.prix,
                        produit.image,
                        produit.nouveaute,
+                       produit.seuil_stock,
                        categorie.nom AS categorie,
                        (SELECT COALESCE(SUM(stock.quantite), 0)
                           FROM stock
@@ -92,8 +93,8 @@ final class ProductModel
             $produit['id']        = (int) $produit['id'];
             $produit['prix']      = (float) $produit['prix'];
             $produit['nouveaute'] = (bool) $produit['nouveaute'];
-            $produit['stock']     = $this->etatStock((int) $produit['quantite_stock']);
-            unset($produit['quantite_stock']);
+            $produit['stock']     = $this->etatStock((int) $produit['quantite_stock'], isset($produit['seuil_stock']) ? (int) $produit['seuil_stock'] : null);
+            unset($produit['quantite_stock'], $produit['seuil_stock']);
         }
 
         return $produits;
@@ -114,6 +115,7 @@ final class ProductModel
                     produit.prix_flocage,
                     produit.image,
                     produit.nouveaute,
+                    produit.seuil_stock,
                     categorie.nom AS categorie
                FROM produit
          INNER JOIN categorie ON categorie.id = produit.categorie_id
@@ -153,7 +155,8 @@ final class ProductModel
         unset($taille);
 
         // État global du produit : somme des stocks de ses tailles (STK-B).
-        $produit['stock'] = $this->etatStock(array_sum(array_column($produit['tailles'], 'quantite')));
+        $produit['stock'] = $this->etatStock(array_sum(array_column($produit['tailles'], 'quantite')), isset($produit['seuil_stock']) ? (int) $produit['seuil_stock'] : null);
+        unset($produit['seuil_stock']);
 
         // Galerie : les fichiers d'image dans l'ordre d'affichage.
         $images = $this->pdo->prepare(
@@ -163,6 +166,100 @@ final class ProductModel
         $produit['images'] = $images->fetchAll(PDO::FETCH_COLUMN);
 
         return $produit;
+    }
+
+    public function adminAll(): array
+    {
+        $rows = $this->pdo->query('SELECT p.*, c.nom AS categorie,
+            (SELECT COALESCE(SUM(s.quantite), 0) FROM stock s WHERE s.produit_id = p.id) AS quantite_stock
+            FROM produit p INNER JOIN categorie c ON c.id = p.categorie_id ORDER BY p.nom, p.id')->fetchAll();
+        foreach ($rows as &$row) {
+            foreach (['id', 'categorie_id', 'quantite_stock'] as $key) $row[$key] = (int) $row[$key];
+            $row['prix'] = (float) $row['prix'];
+            $row['prix_flocage'] = $row['prix_flocage'] === null ? null : (float) $row['prix_flocage'];
+            $row['nouveaute'] = (bool) $row['nouveaute'];
+            $row['seuil_stock'] = $row['seuil_stock'] === null ? $this->seuilStock : (int) $row['seuil_stock'];
+            $row['stock'] = $this->etatStock($row['quantite_stock'], $row['seuil_stock']);
+        }
+        return $rows;
+    }
+
+    public function sizes(): array
+    {
+        $rows = $this->pdo->query('SELECT id, libelle FROM taille ORDER BY ordre, id')->fetchAll();
+        foreach ($rows as &$row) $row['id'] = (int) $row['id'];
+        return $rows;
+    }
+
+    public function defaultThreshold(): int
+    {
+        return $this->seuilStock;
+    }
+
+    public function adminFind(int $id): ?array
+    {
+        $query = $this->pdo->prepare('SELECT * FROM produit WHERE id = :id');
+        $query->execute(['id' => $id]);
+        $row = $query->fetch();
+        if (!$row) return null;
+        foreach (['id', 'categorie_id'] as $key) $row[$key] = (int) $row[$key];
+        $row['prix'] = (float) $row['prix'];
+        $row['prix_flocage'] = $row['prix_flocage'] === null ? null : (float) $row['prix_flocage'];
+        $row['nouveaute'] = (bool) $row['nouveaute'];
+        $row['seuil_stock'] = $row['seuil_stock'] === null ? $this->seuilStock : (int) $row['seuil_stock'];
+        $query = $this->pdo->prepare('SELECT taille_id, quantite FROM stock WHERE produit_id = :id');
+        $query->execute(['id' => $id]);
+        $row['variants'] = array_map(static fn(array $variant): array => [
+            'taille_id' => (int) $variant['taille_id'], 'quantite' => (int) $variant['quantite'],
+        ], $query->fetchAll());
+        $query = $this->pdo->prepare('SELECT fichier FROM image_produit WHERE produit_id = :id ORDER BY ordre');
+        $query->execute(['id' => $id]);
+        $row['images'] = $query->fetchAll(PDO::FETCH_COLUMN);
+        if ($row['images'] === []) $row['images'] = [$row['image']];
+        return $row;
+    }
+
+    public function save(array $product, array $images): int
+    {
+        $this->pdo->beginTransaction();
+        try {
+            $id = $product['id'];
+            $values = array_intersect_key($product, array_flip(['nom', 'description', 'details', 'prix', 'categorie_id', 'prix_flocage', 'nouveaute', 'seuil_stock']));
+            $values['nouveaute'] = (int) $values['nouveaute'];
+            $values['image'] = $images[0];
+            if ($id) {
+                // Le slug reste stable, y compris lorsque le produit change de nom ou de catégorie.
+                $assignments = implode(', ', array_map(static fn(string $key): string => "$key = :$key", array_keys($values)));
+                $query = $this->pdo->prepare('UPDATE produit SET ' . $assignments . ' WHERE id = :id');
+                $query->execute($values + ['id' => $id]);
+                if ($query->rowCount() === 0 && $this->adminFind($id) === null) throw new \RuntimeException('Produit introuvable.');
+            } else {
+                $values['slug'] = $product['slug'];
+                $query = $this->pdo->prepare('INSERT INTO produit (' . implode(', ', array_keys($values)) . ') VALUES (:' . implode(', :', array_keys($values)) . ')');
+                $query->execute($values);
+                $id = (int) $this->pdo->lastInsertId();
+            }
+            // Les autres tables conservent leurs identifiants, notamment les tailles des commandes.
+            $this->pdo->prepare('DELETE FROM stock WHERE produit_id = :id')->execute(['id' => $id]);
+            $query = $this->pdo->prepare('INSERT INTO stock (produit_id, taille_id, quantite) VALUES (:product, :size, :quantity)');
+            foreach ($product['variants'] as $variant) $query->execute(['product' => $id, 'size' => $variant['taille_id'], 'quantity' => $variant['quantite']]);
+            $this->pdo->prepare('DELETE FROM image_produit WHERE produit_id = :id')->execute(['id' => $id]);
+            $query = $this->pdo->prepare('INSERT INTO image_produit (produit_id, ordre, fichier) VALUES (:id, :position, :file)');
+            foreach ($images as $position => $file) $query->execute(['id' => $id, 'position' => $position + 1, 'file' => $file]);
+            $this->pdo->commit();
+            return $id;
+        } catch (\Throwable $error) {
+            $this->pdo->rollBack();
+            throw $error;
+        }
+    }
+
+    public function delete(int $id): bool
+    {
+        // La clé étrangère RESTRICT reste la protection finale contre une commande concurrente.
+        $query = $this->pdo->prepare('DELETE FROM produit WHERE id = :id AND NOT EXISTS (SELECT 1 FROM ligne_commande WHERE produit_id = :product)');
+        $query->execute(['id' => $id, 'product' => $id]);
+        return $query->rowCount() === 1;
     }
 
     /**
