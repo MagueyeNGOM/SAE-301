@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controller\AuthController;
 use App\Controller\AdminAuthController;
+use App\Controller\AdminOrderController;
 use App\Controller\CatalogueController;
 use App\Controller\CategoryController;
 use App\Controller\ProductController;
@@ -40,4 +41,7 @@ return [
     'GET  /api/admin/produit' => [ProductController::class, 'show'],
     'POST /api/admin/produits/save' => [ProductController::class, 'save'],
     'POST /api/admin/produits/delete' => [ProductController::class, 'delete'],
+    'GET  /api/admin/commandes' => [AdminOrderController::class, 'index'],
+    'GET  /api/admin/commande' => [AdminOrderController::class, 'show'],
+    'POST /api/admin/commandes/action' => [AdminOrderController::class, 'action'],
 ];

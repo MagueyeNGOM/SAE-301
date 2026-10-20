@@ -19,6 +19,7 @@ use App\Core\Router;
 use App\Core\ProductImages;
 use App\Controller\AuthController;
 use App\Controller\AdminAuthController;
+use App\Controller\AdminOrderController;
 use App\Controller\CatalogueController;
 use App\Controller\CategoryController;
 use App\Controller\ProductController;
@@ -77,6 +78,7 @@ try {
         AuthController::class      => new AuthController(new UserModel($pdo)),
         AdminAuthController::class => new AdminAuthController(new UserModel($pdo)),
         OrderController::class     => new OrderController($orders, $produits),
+        AdminOrderController::class => new AdminOrderController($orders),
         StatsController::class     => new StatsController($produits, $orders),
     ];
 

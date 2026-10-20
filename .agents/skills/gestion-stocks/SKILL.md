@@ -39,11 +39,11 @@ US non réalisée :
 La mise à jour automatique des stocks
 est une US distincte, encore à développer.
 
-Ne pas supposer que sont implémentés :
-- la décrémentation transactionnelle ;
-- la restauration du stock à l'annulation ;
-- le journal des mouvements ;
-- la gestion des commandes concurrentes.
+Depuis PIL-B (20/10/2026, tests locaux SQLite), la création d'une commande
+décrémente le stock et l'annulation admin le remet (voir
+`../back-office/references/pil-b.md`). Ne pas supposer que sont implémentés :
+- le journal des mouvements de stock ;
+- la gestion éprouvée des commandes concurrentes.
 
 ## Vérifications
 

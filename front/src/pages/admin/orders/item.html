@@ -1,0 +1,12 @@
+<tr>
+  <td class="px-4 py-4"><input type="checkbox" data-role="select" aria-label="Sélectionner la commande {{numero}}"></td>
+  <th scope="row" class="px-4 py-4 font-normal whitespace-nowrap">{{numero}}</th>
+  <td class="px-4 py-4 wrap-anywhere">{{client}}</td>
+  <td class="px-4 py-4 whitespace-nowrap">{{date}}</td>
+  <td class="px-4 py-4"><span data-role="badge">{{statut}}</span></td>
+  <td class="px-4 py-4 whitespace-nowrap">{{total}}</td>
+  <td class="px-4 py-4"><div class="flex flex-wrap gap-3">
+    <button type="button" data-action="view" aria-label="Voir la commande {{numero}}" class="text-om-bleu hover:underline disabled:opacity-65">Voir</button>
+    <button type="button" data-action="cancel" aria-label="Annuler la commande {{numero}}" class="text-om-texte-doux hover:underline disabled:opacity-65">Annuler</button>
+  </div></td>
+</tr>

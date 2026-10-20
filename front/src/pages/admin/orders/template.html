@@ -1,0 +1,67 @@
+<section aria-labelledby="orders-title" class="flex min-w-0 flex-col gap-category-section [&_h2]:tracking-normal [&_h2]:normal-case">
+  <p role="status" data-role="success" tabindex="-1" class="rounded-lg bg-om-succes-fond p-3 text-sm text-om-succes" hidden></p>
+  <p role="alert" data-role="action-error" tabindex="-1" class="rounded-lg bg-om-erreur-fond p-3 text-sm text-om-erreur" hidden></p>
+  <div data-role="load-error" hidden>
+    <p role="alert" tabindex="-1" class="text-sm text-om-erreur"></p>
+    <button type="button" data-action="retry" class="mt-3 text-sm text-om-bleu underline">Réessayer</button>
+  </div>
+
+  <div data-role="list-view" class="flex min-w-0 flex-col gap-category-section">
+    <h1 id="orders-title" tabindex="-1" class="text-admin-title font-bold">Commandes</h1>
+    <div role="group" aria-label="Filtrer par statut" data-role="filters" class="flex flex-wrap gap-2"></div>
+    <div data-role="batch" class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-om-fond p-admin-header" hidden>
+      <p role="status" data-role="batch-count" class="text-[13px] font-semibold"></p>
+      <div class="flex flex-wrap gap-3">
+        <button type="button" data-action="batch-next" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white hover:bg-om-bleu-moyen disabled:opacity-65">Passer au statut suivant</button>
+        <button type="button" data-action="batch-cancel" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu disabled:opacity-65">Annuler</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto rounded-xl">
+      <table class="w-full text-left text-xs">
+        <caption class="sr-only">Commandes des clients, à retirer en boutique</caption>
+        <thead class="bg-om-fond-doux text-om-texte-doux"><tr>
+          <th scope="col" class="px-4 py-3"><input type="checkbox" data-role="select-all" aria-label="Sélectionner toutes les commandes affichées"></th>
+          <th scope="col" class="px-4 py-3">N°</th><th scope="col" class="px-4 py-3">Client</th>
+          <th scope="col" class="px-4 py-3" data-sort="date"><button type="button" data-action="sort" data-key="date" class="font-semibold hover:underline">Date</button></th>
+          <th scope="col" class="px-4 py-3" data-sort="statut"><button type="button" data-action="sort" data-key="statut" class="font-semibold hover:underline">Statut</button></th>
+          <th scope="col" class="px-4 py-3" data-sort="montant"><button type="button" data-action="sort" data-key="montant" class="font-semibold hover:underline">Total</button></th>
+          <th scope="col" class="px-4 py-3">Actions</th>
+        </tr></thead>
+        <tbody data-role="list" class="[&_tr:nth-child(odd)]:bg-om-fond"></tbody>
+      </table>
+    </div>
+    <p data-role="empty" class="text-sm text-om-texte-doux" hidden>Aucune commande.</p>
+    <p class="text-xs text-om-texte-doux">Tri : date, statut ou montant (clic sur l’en-tête).</p>
+  </div>
+
+  <div data-role="detail-view" class="flex min-w-0 flex-col gap-5" hidden>
+    <button type="button" data-action="back" class="self-start text-sm text-om-bleu hover:underline">‹ Commandes</button>
+    <h1 id="order-title" tabindex="-1" class="text-admin-title font-bold"></h1>
+    <p data-role="order-client" class="text-sm"></p>
+    <ol data-role="steps" class="flex flex-wrap gap-x-6 gap-y-2 rounded-xl bg-om-fond p-admin-header text-xs" aria-label="Avancement de la commande"></ol>
+    <div class="overflow-x-auto rounded-xl">
+      <table class="w-full text-left text-xs">
+        <caption class="sr-only">Articles de la commande</caption>
+        <thead class="bg-om-fond-doux text-om-texte-doux"><tr>
+          <th scope="col" class="px-4 py-3">Article</th><th scope="col" class="px-4 py-3">Options</th>
+          <th scope="col" class="px-4 py-3">Qté</th><th scope="col" class="px-4 py-3">Prix</th>
+        </tr></thead>
+        <tbody data-role="lines" class="[&_tr:nth-child(odd)]:bg-om-fond"></tbody>
+      </table>
+    </div>
+    <p data-role="order-total" class="text-lg font-bold"></p>
+    <div class="flex flex-wrap gap-3">
+      <button type="button" data-action="detail-next" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white hover:bg-om-bleu-moyen disabled:opacity-65"></button>
+      <button type="button" data-action="detail-cancel" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu disabled:opacity-65">Annuler la commande</button>
+    </div>
+  </div>
+
+  <section data-role="confirmation" aria-labelledby="order-cancel-title" tabindex="-1" class="flex flex-col gap-3 rounded-xl bg-om-erreur-fond p-category-section text-om-erreur" hidden>
+    <h2 id="order-cancel-title" class="text-sm font-semibold [font-family:inherit]"></h2>
+    <p class="text-xs">Les produits seront remis en stock. L’action est enregistrée dans le journal des modifications.</p>
+    <div class="flex flex-wrap gap-3">
+      <button type="button" data-action="confirm-cancel" class="rounded-lg px-6 py-3 text-[13px] font-semibold hover:underline disabled:opacity-65">Confirmer l’annulation</button>
+      <button type="button" data-action="abort-cancel" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu disabled:opacity-65">Retour</button>
+    </div>
+  </section>
+</section>

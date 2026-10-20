@@ -18,6 +18,8 @@ encore le starter films. Vérifier les dépendances dans le code et les critère
   [GOF-C](references/gof-c.md).
 - Produits, variantes, seuils, images, PHP GD et stockage persistant :
   [GOF-A](references/gof-a.md).
+- Gestion des commandes admin (PIL-B), statuts, annulation, journal, début de la
+  décrémentation du stock : [PIL-B](references/pil-b.md).
 
 Lire uniquement les références nécessaires. Elles conservent les procédures et
 les résultats historiques ; leurs tests réussis ne remplacent pas une validation

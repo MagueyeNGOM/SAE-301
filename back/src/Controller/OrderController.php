@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Model\OrderModel;
 use App\Model\ProductModel;
+use DomainException;
 
 /**
  * Validation de la commande (CMD-A).
@@ -147,7 +148,12 @@ final class OrderController
         }
 
         $total  = round($total, 2);
-        $numero = $this->commandes->creer((int) $_SESSION['utilisateur'], $lignes, $total);
+        try {
+            $numero = $this->commandes->creer((int) $_SESSION['utilisateur'], $lignes, $total);
+        } catch (DomainException $e) {
+            // Stock épuisé entre la vérification et l'enregistrement : rien n'a été enregistré.
+            Response::erreur($e->getMessage(), 409);
+        }
 
         Response::json(['commande' => ['numero' => $numero, 'total' => $total, 'articles' => count($lignes)]], 201);
     }
