@@ -80,8 +80,9 @@ final class OrderController
             }
         }
 
-        $lignes = [];
-        $total  = 0.0;
+        $lignes  = [];
+        $reserve = []; // quantité demandée par taille (id de variante)
+        $total   = 0.0;
         foreach ($demandes as $demande) {
             $produit = $this->produits->trouver($demande['slug']);
 
@@ -110,6 +111,16 @@ final class OrderController
             }
             if ($taille['quantite'] < 1) {
                 Response::erreur('La taille ' . $taille['libelle'] . ' de « ' . $produit['nom'] . ' » est épuisée.', 422);
+            }
+
+            // STK-C : le stock se partage entre les lignes d'une même taille (flocages différents).
+            $reserve[$tailleId] = ($reserve[$tailleId] ?? 0) + $demande['quantite'];
+            if ($reserve[$tailleId] > $taille['quantite']) {
+                Response::erreur(
+                    'Il ne reste que ' . $taille['quantite'] . ' exemplaire' . ($taille['quantite'] > 1 ? 's' : '')
+                    . ' de la taille ' . $taille['libelle'] . ' de « ' . $produit['nom'] . ' ». Ajustez votre panier.',
+                    422
+                );
             }
 
             // Le prix du flocage vient de la base : le produit doit en proposer un.

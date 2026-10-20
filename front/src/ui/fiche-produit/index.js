@@ -12,7 +12,8 @@ const NUMERO_FLOCAGE = /^\d{1,2}$/;
 
 // Fiche détaillée d'un produit (DEC-C) avec le choix de la taille et du
 // flocage (OPT-C). actions.surAjouter(produit, { taille, flocage }) est appelée
-// seulement quand les choix sont valides.
+// seulement quand les choix sont valides ; elle renvoie un message si l'ajout
+// est refusé (stock atteint), "" sinon.
 let FicheProduitView = {
   html: function (produit) {
     return genericRenderer(template, {
@@ -97,7 +98,7 @@ let FicheProduitView = {
       let bouton = li.querySelector("button");
       bouton.disabled = t.quantite < 1;
       bouton.addEventListener("click", () => {
-        taille = { id: t.id, libelle: t.libelle };
+        taille = { id: t.id, libelle: t.libelle, stock: t.quantite };
         tuiles.forEach((b) => b.setAttribute("aria-pressed", String(b === bouton)));
         majChoix();
       });
@@ -149,7 +150,11 @@ let FicheProduitView = {
         erreur.hidden = false;
         return;
       }
-      actions.surAjouter(produit, { taille, flocage: flocage() });
+      let refus = actions.surAjouter(produit, { taille, flocage: flocage() });
+      if (refus) {
+        erreur.textContent = refus;
+        erreur.hidden = false;
+      }
     });
 
     majChoix();
