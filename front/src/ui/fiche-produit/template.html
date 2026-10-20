@@ -10,6 +10,7 @@
       <h1 class="text-2xl font-bold tracking-tight text-om-texte">{{nom}}</h1>
       <p class="shrink-0 text-2xl font-bold text-om-bleu">{{prix}}</p>
     </div>
+    <div><slot name="stock"></slot></div>
 
     <section data-role="bloc-tailles" aria-labelledby="titre-tailles" class="flex flex-col gap-3">
       <h2 id="titre-tailles" class="text-sm font-semibold text-om-texte">Taille</h2>

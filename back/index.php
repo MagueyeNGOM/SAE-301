@@ -62,11 +62,13 @@ try {
     // --- Assemblage ---------------------------------------------------------
     // Les dépendances sont créées explicitement : le modèle reçoit la connexion,
     // le contrôleur reçoit le modèle. Aucune magie, tout est lisible ici.
+    $produits = new ProductModel($pdo, $config['seuil_stock']);
+
     $controleurs = [
-        CatalogueController::class => new CatalogueController(new ProductModel($pdo)),
+        CatalogueController::class => new CatalogueController($produits),
         AuthController::class      => new AuthController(new UserModel($pdo)),
-        OrderController::class     => new OrderController(new OrderModel($pdo), new ProductModel($pdo)),
-        StatsController::class     => new StatsController(new ProductModel($pdo)),
+        OrderController::class     => new OrderController(new OrderModel($pdo), $produits),
+        StatsController::class     => new StatsController($produits),
     ];
 
     $routes = require __DIR__ . '/src/routes.php';

@@ -2,6 +2,7 @@ import { CartData } from "../../data/cart.js";
 import { genericRenderer, htmlToFragment } from "../../lib/utils.js";
 import { formaterPrix } from "../../lib/format.js";
 import { ChampFormulaireView } from "../champ-formulaire/index.js";
+import { PastilleStockView } from "../pastille-stock/index.js";
 import template from "./template.html?raw";
 import tuileTemplate from "./tuile-taille.html?raw";
 
@@ -61,6 +62,7 @@ let FicheProduitView = {
     let prixTotal = fragment.querySelector('[data-role="prix-total"]');
     let apercu = fragment.querySelector('[data-role="apercu"]');
 
+    fragment.querySelector('slot[name="stock"]').replaceWith(PastilleStockView.dom(produit.stock));
     fragment.querySelector('slot[name="champ-nom"]').replaceWith(ChampFormulaireView.dom({ id: "flocage-nom", libelle: "Nom", placeholder: "NGOM" }));
     fragment.querySelector('slot[name="champ-numero"]').replaceWith(ChampFormulaireView.dom({ id: "flocage-numero", libelle: "Numéro", placeholder: "10" }));
     let champNom = fragment.querySelector("#flocage-nom");

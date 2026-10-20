@@ -1,8 +1,9 @@
 import { genericRenderer, htmlToFragment } from "../../lib/utils.js";
 import { formaterPrix } from "../../lib/format.js";
+import { PastilleStockView } from "../pastille-stock/index.js";
 import template from "./template.html?raw";
 
-// Carte d'un produit : nom, prix, image principale (DEC-B).
+// Carte d'un produit : nom, prix, image principale (DEC-B) et état du stock (STK-B).
 let CarteProduitView = {
   html: function (produit) {
     return genericRenderer(template, {
@@ -15,7 +16,9 @@ let CarteProduitView = {
   },
 
   dom: function (produit) {
-    return htmlToFragment(CarteProduitView.html(produit));
+    let fragment = htmlToFragment(CarteProduitView.html(produit));
+    fragment.querySelector('slot[name="stock"]').replaceWith(PastilleStockView.dom(produit.stock));
+    return fragment;
   },
 };
 
