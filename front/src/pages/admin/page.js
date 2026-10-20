@@ -7,6 +7,7 @@ import template from "./template.html?raw";
 import sectionTemplate from "./section.html?raw";
 import { CategoriesSection } from "./categories/index.js";
 import { ProductsSection } from "./products/index.js";
+import { OrdersSection } from "./orders/index.js";
 
 const sections = {
   categories: "Catégories",
@@ -31,12 +32,19 @@ export async function AdminPage({ section = "" } = {}) {
     V.refresh();
   });
 
+  const orders = OrdersSection((error) => {
+    M.session = { connecte: false };
+    M.message = error.message;
+    V.refresh();
+  });
+
   C.load = async function () {
     try {
       M.session = await AdminAuthData.me();
       if (M.session.connecte && section === "") M.stats = await StatsData.fetch();
       if (M.session.connecte && section === "categories") await categories.load();
       if (M.session.connecte && section === "produits") await products.load();
+      if (M.session.connecte && section === "commandes") await orders.load();
     } catch (error) {
       if (error.statut === 401 || error.statut === 403) M.session = { connecte: false };
       M.message = error.message;
@@ -107,6 +115,8 @@ export async function AdminPage({ section = "" } = {}) {
       content = categories.dom();
     } else if (section === "produits") {
       content = products.dom();
+    } else if (section === "commandes") {
+      content = orders.dom();
     } else {
       content = htmlToFragment(genericRenderer(sectionTemplate, {
         title: Object.hasOwn(sections, section) ? sections[section] : "Page introuvable",

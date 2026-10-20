@@ -60,7 +60,7 @@ Vérifications exécutées avec le skill `verifier-us` :
 | Responsive | VALIDÉ : aucun débordement horizontal à 360, 768 et 1 200 px dans les trois navigateurs |
 | Comparaison Figma | VALIDÉ : contrôle visuel desktop et mobile ; titres, liste, formulaire et confirmation adaptés à P3-05 ; données issues des fixtures de test |
 | HTML réellement rendu | VALIDÉ : Nu 26.10.12, sept états, aucun diagnostic ni avertissement |
-| CSS Tailwind compilé | RÉSERVE OUTIL : 29 diagnostics, identiques à ceux documentés dans `docs/gof-b.md` : 27 `@property`, un `margin-trim` dans `@supports`, un `transition-property` ; aucun diagnostic supplémentaire |
+| CSS Tailwind compilé | RÉSERVE OUTIL : 29 diagnostics, identiques à ceux documentés dans [GOF-B](gof-b.md) : 27 `@property`, un `margin-trim` dans `@supports`, un `transition-property` ; aucun diagnostic supplémentaire |
 | Déploiement et base distante | NON EFFECTUÉS : tous les scénarios de modification utilisent une base temporaire |
 | GitHub, branche, commits et fusion | À gérer par Mag ; aucune commande Git exécutée |
 

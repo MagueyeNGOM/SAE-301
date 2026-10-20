@@ -71,6 +71,7 @@ INSERT INTO image_produit VALUES (1, 1, 'maillot-domicile-26-27.png'), (2, 1, 'e
 INSERT INTO commande (id, numero, total) VALUES (1, 'OM-TEST', 100);
 INSERT INTO ligne_commande (commande_id, produit_id, taille_id, nom_produit, quantite, prix_unitaire, prix_flocage) VALUES (1, 1, 1, 'Maillot OM', 1, 100, 0);");
 $pdo->exec(file_get_contents(${quote(path.join(root, 'sql/migrations/gof-a-product-stock-threshold.sql'))}));
+$pdo->exec(file_get_contents(${quote(path.join(root, 'sql/migrations/pil-b-order-stock-flag.sql'))}));
 if ($pdo->query('SELECT COUNT(*) FROM produit')->fetchColumn() != 2 || $pdo->query('SELECT seuil_stock FROM produit LIMIT 1')->fetchColumn() !== null) exit(1);
 $query = $pdo->prepare('INSERT INTO utilisateur VALUES (?, ?, ?, ?, ?, ?)');
 foreach (['admin', 'client'] as $i => $role) $query->execute([$i + 1, 'Test', $role, $role . '@example.test', password_hash(getenv('GOF_A_PASSWORD'), PASSWORD_BCRYPT), $role]);

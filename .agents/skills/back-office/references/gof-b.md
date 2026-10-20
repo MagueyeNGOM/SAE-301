@@ -1,5 +1,9 @@
 # GOF-B — Back-office
 
+Cette référence conserve la mise en place et les vérifications de GOF-B.
+La description des sections « à venir » ci-dessous correspond à cette étape ;
+les catégories et produits ont depuis été implémentés dans GOF-C et GOF-A.
+
 L'entrée `/admin` présente la connexion administrateur. Le contenu privé et
 les sections `/admin/categories`, `/admin/produits`, `/admin/commandes` et
 `/admin/statistiques` ne s'affichent qu'après cette connexion.
