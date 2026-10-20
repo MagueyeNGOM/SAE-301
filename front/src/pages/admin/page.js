@@ -8,6 +8,7 @@ import sectionTemplate from "./section.html?raw";
 import { CategoriesSection } from "./categories/index.js";
 import { ProductsSection } from "./products/index.js";
 import { OrdersSection } from "./orders/index.js";
+import { StatsSection } from "./stats/index.js";
 
 const sections = {
   categories: "Catégories",
@@ -38,6 +39,12 @@ export async function AdminPage({ section = "" } = {}) {
     V.refresh();
   });
 
+  const statistics = StatsSection((error) => {
+    M.session = { connecte: false };
+    M.message = error.message;
+    V.refresh();
+  });
+
   C.load = async function () {
     try {
       M.session = await AdminAuthData.me();
@@ -45,6 +52,7 @@ export async function AdminPage({ section = "" } = {}) {
       if (M.session.connecte && section === "categories") await categories.load();
       if (M.session.connecte && section === "produits") await products.load();
       if (M.session.connecte && section === "commandes") await orders.load();
+      if (M.session.connecte && section === "statistiques") await statistics.load();
     } catch (error) {
       if (error.statut === 401 || error.statut === 403) M.session = { connecte: false };
       M.message = error.message;
@@ -117,6 +125,8 @@ export async function AdminPage({ section = "" } = {}) {
       content = products.dom();
     } else if (section === "commandes") {
       content = orders.dom();
+    } else if (section === "statistiques") {
+      content = statistics.dom();
     } else {
       content = htmlToFragment(genericRenderer(sectionTemplate, {
         title: Object.hasOwn(sections, section) ? sections[section] : "Page introuvable",

@@ -28,7 +28,13 @@ class ErreurApi extends Error {
  * Lève une ErreurApi si le serveur répond par une erreur.
  */
 let request = async function (uri, options) {
-  const response = await fetch(API_URL + uri, options);
+  let response;
+  try {
+    response = await fetch(API_URL + uri, options);
+  } catch (e) {
+    // Coupure réseau : fetch lève une erreur en anglais (« Failed to fetch »).
+    throw new ErreurApi("Serveur injoignable. Vérifiez votre connexion puis réessayez.", 0);
+  }
 
   let data = null;
   try {
