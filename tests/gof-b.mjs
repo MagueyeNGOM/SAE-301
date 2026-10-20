@@ -34,11 +34,14 @@ $pdo = new PDO('sqlite:' . getenv('GOF_B_DB'), null, null, [PDO::ATTR_ERRMODE =>
 require __DIR__ . '/bootstrap.php';
 $pdo->exec("CREATE TABLE utilisateur (id INTEGER PRIMARY KEY AUTOINCREMENT, prenom TEXT, nom TEXT, email TEXT UNIQUE, password_hash TEXT, role TEXT DEFAULT 'client');
 CREATE TABLE categorie (id INTEGER PRIMARY KEY, nom TEXT, ordre INTEGER);
-CREATE TABLE produit (id INTEGER PRIMARY KEY, prix NUMERIC, categorie_id INTEGER);
-CREATE TABLE commande (id INTEGER PRIMARY KEY);
+CREATE TABLE produit (id INTEGER PRIMARY KEY, prix NUMERIC, categorie_id INTEGER, nom TEXT, prix_flocage NUMERIC, nouveaute INTEGER, seuil_stock INTEGER);
+CREATE TABLE taille (id INTEGER PRIMARY KEY, libelle TEXT, ordre INTEGER);
+CREATE TABLE stock (produit_id INTEGER, taille_id INTEGER, quantite INTEGER);
+CREATE TABLE commande (id INTEGER PRIMARY KEY, statut TEXT NOT NULL DEFAULT 'en cours', total NUMERIC NOT NULL DEFAULT 0, date_commande TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE ligne_commande (id INTEGER PRIMARY KEY, commande_id INTEGER, produit_id INTEGER, quantite INTEGER);
 INSERT INTO categorie VALUES (1, 'Maillots', 1);
-INSERT INTO produit VALUES (1, 90, 1), (2, 100, 1);
-INSERT INTO commande VALUES (1), (2), (3);");
+INSERT INTO produit VALUES (1, 90, 1, 'Maillot', NULL, 0, NULL), (2, 100, 1, 'Short', NULL, 0, NULL);
+INSERT INTO commande (id) VALUES (1), (2), (3);");
 $pdo->prepare('INSERT INTO utilisateur (nom, email, password_hash) VALUES (?, ?, ?)')->execute(['Client test', 'client@example.test', password_hash(getenv('OM_ADMIN_TEST_PASSWORD'), PASSWORD_BCRYPT)]);
 `);
   assert.equal(run(path.join(temporary, 'setup.php')).status, 0, 'Création de la base de test');

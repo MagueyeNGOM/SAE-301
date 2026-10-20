@@ -1,0 +1,51 @@
+<section aria-labelledby="stats-title" class="flex min-w-0 flex-col gap-category-section [&_:is(h2,h3)]:tracking-normal [&_:is(h2,h3)]:normal-case">
+  <div class="flex flex-wrap items-center gap-4">
+    <h1 id="stats-title" tabindex="-1" class="text-admin-title font-bold">Statistiques</h1>
+    <button type="button" data-action="export" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu hover:underline disabled:opacity-65">Exporter les statistiques</button>
+  </div>
+  <div data-role="load-error" hidden>
+    <p role="alert" tabindex="-1" class="text-sm text-om-erreur"></p>
+    <button type="button" data-action="retry" class="mt-3 text-sm text-om-bleu underline">Réessayer</button>
+  </div>
+
+  <div data-role="content" class="flex min-w-0 flex-col gap-category-section">
+    <dl class="grid gap-4 sm:grid-cols-3">
+      <div class="flex flex-col gap-1.5 rounded-xl bg-om-fond p-5">
+        <dt class="text-xs text-om-texte-doux">Commandes</dt>
+        <dd data-role="orders" class="text-[32px] font-bold"></dd>
+        <dd class="text-[11px] text-om-texte-doux">au total</dd>
+      </div>
+      <div class="flex flex-col gap-1.5 rounded-xl bg-om-fond p-5">
+        <dt class="text-xs text-om-texte-doux">En cours / disponibles</dt>
+        <dd data-role="pending" class="text-[32px] font-bold"></dd>
+      </div>
+      <div class="flex flex-col gap-1.5 rounded-xl bg-om-fond p-5">
+        <dt class="text-xs text-om-texte-doux">Retirées / annulées</dt>
+        <dd data-role="closed" class="text-[32px] font-bold"></dd>
+      </div>
+    </dl>
+
+    <div class="grid items-start gap-5 lg:grid-cols-2">
+      <div class="flex min-w-0 flex-col gap-2.5 rounded-xl bg-om-fond p-category-section">
+        <h2 class="text-[15px] font-semibold">Revenus des 7 derniers jours</h2>
+        <p data-role="revenue-total" class="text-xs text-om-texte-doux"></p>
+        <ul data-role="revenue" aria-label="Revenus par jour, hors commandes annulées" class="flex h-[200px] items-end gap-2 rounded-admin-chart bg-om-fond-doux p-3"></ul>
+      </div>
+      <div class="flex min-w-0 flex-col gap-2.5 rounded-xl bg-om-fond p-category-section">
+        <h2 class="text-[15px] font-semibold">Produits les plus vendus</h2>
+        <ol data-role="best" class="flex flex-col gap-2.5 text-[13px]"></ol>
+        <p data-role="best-empty" class="text-[13px] text-om-texte-doux" hidden>Aucune vente pour le moment.</p>
+      </div>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-2.5 rounded-xl bg-om-fond p-category-section">
+      <h2 class="text-[15px] font-semibold">Stocks par produit et alertes de stock faible</h2>
+      <div class="overflow-x-auto rounded-admin-chart bg-om-fond-doux">
+        <ul data-role="stocks" aria-label="Stock total par produit" class="flex h-[170px] min-w-max items-end gap-2 p-3"></ul>
+      </div>
+      <h3 class="mt-2 text-[13px] font-semibold">Alertes de stock</h3>
+      <ul data-role="alerts" class="flex flex-col gap-2.5 text-[13px]"></ul>
+      <p data-role="alerts-empty" class="text-[13px] text-om-texte-doux" hidden>Aucun stock faible.</p>
+    </div>
+  </div>
+</section>

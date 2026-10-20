@@ -20,6 +20,8 @@ encore le starter films. Vérifier les dépendances dans le code et les critère
   [GOF-A](references/gof-a.md).
 - Gestion des commandes admin (PIL-B), statuts, annulation, journal, début de la
   décrémentation du stock : [PIL-B](references/pil-b.md).
+- Statistiques (PIL-A), revenus 7 jours, meilleures ventes, stocks, alertes, export
+  CSV : [PIL-A](references/pil-a.md).
 
 Lire uniquement les références nécessaires. Elles conservent les procédures et
 les résultats historiques ; leurs tests réussis ne remplacent pas une validation

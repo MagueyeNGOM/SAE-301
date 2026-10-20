@@ -25,6 +25,14 @@ final class StatsController
     {
         AdminAuthController::requireAdmin();
 
-        Response::json($this->produits->statistiques() + ['orders' => $this->orders->count()]);
+        // Calculé à chaque appel (réponse en no-store) : les chiffres sont toujours ceux de la base.
+        Response::json($this->produits->statistiques() + [
+            'orders'     => $this->orders->count(),
+            'compteurs'  => $this->orders->compteurs(),
+            'revenus'    => $this->orders->revenus7Jours(),
+            'plusVendus' => $this->orders->plusVendus(),
+            'stocks'     => $this->produits->stocksParProduit(),
+            'alertes'    => $this->produits->alertesStock(),
+        ]);
     }
 }

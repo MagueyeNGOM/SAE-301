@@ -136,6 +136,42 @@ final class OrderModel
         return $compteurs;
     }
 
+    /** Revenus par jour des 7 derniers jours (aujourd'hui inclus), hors commandes annulées. */
+    public function revenus7Jours(): array
+    {
+        // Le jour courant vient de la base, comme date_commande : pas de décalage de fuseau avec PHP.
+        $aujourdhui = new \DateTimeImmutable((string) $this->pdo->query('SELECT DATE(CURRENT_TIMESTAMP)')->fetchColumn());
+        $jours = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $jours[$aujourdhui->modify("-$i day")->format('Y-m-d')] = 0.0;
+        }
+
+        $requete = $this->pdo->prepare(
+            "SELECT DATE(date_commande) AS jour, SUM(total) AS revenu FROM commande
+             WHERE statut <> 'annulée' AND date_commande >= :debut GROUP BY DATE(date_commande)"
+        );
+        $requete->execute(['debut' => array_key_first($jours)]);
+        foreach ($requete as $ligne) {
+            if (isset($jours[$ligne['jour']])) $jours[$ligne['jour']] = (float) $ligne['revenu'];
+        }
+
+        $revenus = [];
+        foreach ($jours as $jour => $revenu) $revenus[] = ['jour' => $jour, 'revenu' => $revenu];
+        return $revenus;
+    }
+
+    /** Les 5 produits les plus vendus (quantités), hors commandes annulées. */
+    public function plusVendus(): array
+    {
+        $lignes = $this->pdo->query(
+            "SELECT p.nom, SUM(l.quantite) AS ventes FROM ligne_commande l
+             JOIN commande c ON c.id = l.commande_id JOIN produit p ON p.id = l.produit_id
+             WHERE c.statut <> 'annulée' GROUP BY p.id, p.nom ORDER BY ventes DESC, p.nom LIMIT 5"
+        )->fetchAll();
+        foreach ($lignes as &$ligne) $ligne['ventes'] = (int) $ligne['ventes'];
+        return $lignes;
+    }
+
     /** Commande complète (client, lignes, options) ou null si elle n'existe pas. */
     public function detail(int $id): ?array
     {

@@ -184,6 +184,26 @@ final class ProductModel
         return $rows;
     }
 
+    /** Stock total de chaque produit (histogramme PIL-A). */
+    public function stocksParProduit(): array
+    {
+        return array_map(fn ($p) => ['nom' => $p['nom'], 'quantite' => $p['quantite_stock']], $this->adminAll());
+    }
+
+    /** Tailles dont le stock est au seuil ou en dessous, les plus critiques d'abord. */
+    public function alertesStock(): array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT p.nom, t.libelle AS taille, s.quantite FROM stock s
+             JOIN produit p ON p.id = s.produit_id JOIN taille t ON t.id = s.taille_id
+             WHERE s.quantite <= COALESCE(p.seuil_stock, :seuil) ORDER BY s.quantite, p.nom, t.ordre'
+        );
+        $requete->execute(['seuil' => $this->seuilStock]);
+        $alertes = $requete->fetchAll();
+        foreach ($alertes as &$alerte) $alerte['quantite'] = (int) $alerte['quantite'];
+        return $alertes;
+    }
+
     public function sizes(): array
     {
         $rows = $this->pdo->query('SELECT id, libelle FROM taille ORDER BY ordre, id')->fetchAll();
