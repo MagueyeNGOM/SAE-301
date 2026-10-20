@@ -32,6 +32,17 @@
   --color-om-attention: var(--fg-attention);
   --color-om-attention-fond: var(--bg-attention);
   --font-om: ui-sans-serif, system-ui, sans-serif;
+  /* Valeurs Figma utilisées par les classes utilitaires de GOF-B. */
+  --spacing-admin-header: 18px;
+  --spacing-admin-login-top: 90px;
+  --spacing-category-section: 22px;
+  --container-admin: 1200px;
+  --container-admin-login: 420px;
+  --radius-admin-panel: 14px;
+  --text-admin-title: 28px;
+  --text-admin-title--line-height: 1.25;
+  --text-admin-login-title: 22px;
+  --text-admin-login-title--line-height: 1.25;
 }
 
 @layer base {

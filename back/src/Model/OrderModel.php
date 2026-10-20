@@ -22,6 +22,11 @@ final class OrderModel
         $this->pdo = $pdo;
     }
 
+    public function count(): int
+    {
+        return (int) $this->pdo->query('SELECT COUNT(*) FROM commande')->fetchColumn();
+    }
+
     /**
      * Enregistre une commande « en cours » et ses lignes, puis renvoie son numéro.
      *

@@ -1,7 +1,22 @@
-<section class="mx-auto max-w-2xl px-6 pt-10 pb-16">
-  <h1 class="mb-6 text-2xl font-semibold tracking-tight">Administration</h1>
-
-  <slot name="connexion"></slot>
-  <slot name="message"></slot>
-  <slot name="statistiques"></slot>
-</section>
+<div class="min-h-screen data-[authenticated=false]:bg-om-fond">
+  <header class="bg-om-bleu text-white">
+    <div class="mx-auto flex max-w-admin flex-wrap items-center justify-between gap-4 px-4 py-admin-header sm:px-10">
+      <p class="text-sm leading-tight font-bold">ADMIN · OLYMPIQUE DE MARSEILLE</p>
+      <div class="flex flex-wrap items-center gap-4">
+        <a href="/" data-link data-role="home" class="rounded-lg border border-om-fond-doux px-3 py-2 text-xs text-white hover:bg-om-bleu-moyen">Accueil boutique</a>
+        <button type="button" data-action="logout" class="text-xs text-om-fond-doux hover:underline disabled:cursor-wait disabled:opacity-65" hidden>Déconnexion</button>
+      </div>
+    </div>
+    <nav class="mx-auto flex max-w-admin flex-wrap gap-x-7 gap-y-4 px-4 sm:px-10" aria-label="Administration" hidden>
+      <a href="/admin" data-link class="border-b-3 border-transparent pb-2 text-[13px] text-om-fond-doux hover:underline aria-[current=page]:border-om-bleu-clair aria-[current=page]:font-semibold aria-[current=page]:text-white">Tableau de bord</a>
+      <a href="/admin/categories" data-link class="border-b-3 border-transparent pb-2 text-[13px] text-om-fond-doux hover:underline aria-[current=page]:border-om-bleu-clair aria-[current=page]:font-semibold aria-[current=page]:text-white">Catégories</a>
+      <a href="/admin/produits" data-link class="border-b-3 border-transparent pb-2 text-[13px] text-om-fond-doux hover:underline aria-[current=page]:border-om-bleu-clair aria-[current=page]:font-semibold aria-[current=page]:text-white">Produits</a>
+      <a href="/admin/commandes" data-link class="border-b-3 border-transparent pb-2 text-[13px] text-om-fond-doux hover:underline aria-[current=page]:border-om-bleu-clair aria-[current=page]:font-semibold aria-[current=page]:text-white">Commandes</a>
+      <a href="/admin/statistiques" data-link class="border-b-3 border-transparent pb-2 text-[13px] text-om-fond-doux hover:underline aria-[current=page]:border-om-bleu-clair aria-[current=page]:font-semibold aria-[current=page]:text-white">Statistiques</a>
+    </nav>
+  </header>
+  <main id="contenu" tabindex="-1" class="mx-auto max-w-admin px-4 py-8 focus:outline-none sm:px-10 sm:data-[login=true]:pt-admin-login-top">
+    <p role="alert" tabindex="-1" class="mb-4 rounded-lg bg-om-erreur-fond px-3.5 py-2.5 text-xs leading-tight font-semibold text-om-erreur" hidden></p>
+    <slot name="content"></slot>
+  </main>
+</div>

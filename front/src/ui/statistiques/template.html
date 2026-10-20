@@ -1,18 +1,15 @@
-<section class="mb-6 rounded-lg border border-zinc-200 p-6 shadow-xs dark:border-zinc-800">
-  <h2 class="mb-5 text-base font-semibold tracking-tight">Statistiques du catalogue</h2>
-
-  <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-4">
-    <div class="rounded-md border border-zinc-200 p-4 dark:border-zinc-800">
-      <div class="text-2xl leading-tight font-semibold tracking-tight">{{total}}</div>
-      <div class="text-[0.8125rem] text-zinc-500 dark:text-zinc-400">produits</div>
+<section>
+  <h1 class="text-admin-title font-bold">Tableau de bord</h1>
+  <p class="mt-4 text-[13px] leading-tight text-om-texte-doux">Bienvenue dans l’espace administration de la boutique OM.</p>
+  <p data-role="unavailable" hidden>Les indicateurs sont indisponibles. Rechargez la page pour réessayer.</p>
+  <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+    <div class="rounded-xl bg-om-fond p-6">
+      <dt class="text-xs text-om-texte-doux">Produits</dt>
+      <dd class="mt-2 text-[32px] font-bold">{{total}}</dd>
     </div>
-    <div class="rounded-md border border-zinc-200 p-4 dark:border-zinc-800">
-      <div class="text-2xl leading-tight font-semibold tracking-tight">{{prixMoyen}}</div>
-      <div class="text-[0.8125rem] text-zinc-500 dark:text-zinc-400">prix moyen</div>
+    <div class="rounded-xl bg-om-fond p-6">
+      <dt class="text-xs text-om-texte-doux">Commandes</dt>
+      <dd class="mt-2 text-[32px] font-bold">{{orders}}</dd>
     </div>
-  </div>
-
-  <ul class="mt-6 divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
-    <slot name="categories"></slot>
-  </ul>
+  </dl>
 </section>

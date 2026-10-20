@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Core\Response;
 use App\Model\ProductModel;
+use App\Model\OrderModel;
 
 /**
  * Statistiques du catalogue, réservées aux administrateurs.
@@ -15,18 +16,15 @@ final class StatsController
     /** Le modèle qui interroge la base, fourni à la construction. */
     private ProductModel $produits;
 
-    public function __construct(ProductModel $produits)
+    public function __construct(ProductModel $produits, private OrderModel $orders)
     {
         $this->produits = $produits;
     }
 
     public function index(): void
     {
-        // La session est déjà ouverte par index.php.
-        if (($_SESSION['role'] ?? '') !== 'admin') {
-            Response::erreur('Accès réservé aux administrateurs', 403);
-        }
+        AdminAuthController::requireAdmin();
 
-        Response::json($this->produits->statistiques());
+        Response::json($this->produits->statistiques() + ['orders' => $this->orders->count()]);
     }
 }

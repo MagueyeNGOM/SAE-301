@@ -46,6 +46,7 @@ CREATE TABLE categorie (
     id    TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
     nom   VARCHAR(60)      NOT NULL,
     slug  VARCHAR(60)      NOT NULL,
+    description VARCHAR(255) NOT NULL DEFAULT '',
     ordre TINYINT UNSIGNED NOT NULL DEFAULT 0,
 
     PRIMARY KEY (id),
