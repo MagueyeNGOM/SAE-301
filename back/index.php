@@ -16,10 +16,12 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
+use App\Core\ProductImages;
 use App\Controller\AuthController;
 use App\Controller\AdminAuthController;
 use App\Controller\CatalogueController;
 use App\Controller\CategoryController;
+use App\Controller\ProductController;
 use App\Controller\OrderController;
 use App\Controller\StatsController;
 use App\Model\OrderModel;
@@ -71,6 +73,7 @@ try {
     $controleurs = [
         CatalogueController::class => new CatalogueController($produits),
         CategoryController::class  => new CategoryController(new CategoryModel($pdo)),
+        ProductController::class   => new ProductController($produits, new CategoryModel($pdo), new ProductImages(__DIR__ . '/storage/product-images')),
         AuthController::class      => new AuthController(new UserModel($pdo)),
         AdminAuthController::class => new AdminAuthController(new UserModel($pdo)),
         OrderController::class     => new OrderController($orders, $produits),

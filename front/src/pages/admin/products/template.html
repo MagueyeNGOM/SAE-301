@@ -1,0 +1,81 @@
+<section aria-labelledby="products-title" class="flex min-w-0 flex-col gap-category-section [&_h2]:tracking-normal [&_h2]:normal-case">
+  <div data-role="list-heading" class="flex flex-wrap items-center gap-x-6 gap-y-3">
+    <h1 id="products-title" class="text-admin-title font-bold">Produits</h1>
+    <button type="button" data-action="add" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white hover:bg-om-bleu-moyen disabled:opacity-65">Ajouter un produit</button>
+  </div>
+  <p role="status" data-role="success" tabindex="-1" class="rounded-lg bg-om-succes-fond p-3 text-sm text-om-succes" hidden></p>
+  <div data-role="load-error" hidden>
+    <p role="alert" tabindex="-1" class="text-sm text-om-erreur"></p>
+    <button type="button" data-action="retry" class="mt-3 text-sm text-om-bleu underline">Réessayer</button>
+  </div>
+  <div data-role="list-panel" class="min-w-0">
+    <div class="overflow-x-auto rounded-xl">
+      <table class="w-full text-left text-xs">
+        <caption class="sr-only">Produits du catalogue et stocks toutes tailles confondues</caption>
+        <thead class="bg-om-fond-doux text-om-texte-doux"><tr>
+          <th scope="col" class="px-4 py-3">Produit</th><th scope="col" class="px-4 py-3">Catégorie</th>
+          <th scope="col" class="px-4 py-3">Prix</th><th scope="col" class="px-4 py-3">Stock</th>
+          <th scope="col" class="px-4 py-3">Disponibilité</th><th scope="col" class="px-4 py-3">Actions</th>
+        </tr></thead>
+        <tbody data-role="list" class="[&_tr:nth-child(odd)]:bg-om-fond"></tbody>
+      </table>
+    </div>
+    <p data-role="empty" class="text-sm text-om-texte-doux" hidden>Aucun produit. Ajoutez le premier produit.</p>
+  </div>
+  <section data-role="confirmation" aria-labelledby="product-delete-title" tabindex="-1" class="flex flex-col gap-3 rounded-xl bg-om-erreur-fond p-category-section text-om-erreur" hidden>
+    <h2 id="product-delete-title" class="text-sm font-semibold [font-family:inherit]"></h2>
+    <p class="text-xs">Cette action est définitive. Un produit figurant dans une commande ne peut pas être supprimé.</p>
+    <p role="alert" data-role="delete-error" tabindex="-1" class="text-xs font-semibold" hidden></p>
+    <div class="flex flex-wrap gap-3">
+      <button type="button" data-action="confirm-delete" class="rounded-lg px-6 py-3 text-[13px] font-semibold hover:underline disabled:opacity-65">Confirmer la suppression</button>
+      <button type="button" data-action="cancel-delete" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu disabled:opacity-65">Annuler</button>
+    </div>
+  </section>
+  <div data-role="editor" hidden>
+    <button type="button" data-action="back" class="mb-5 text-sm text-om-bleu hover:underline">‹ Produits</button>
+    <h1 id="product-form-title" tabindex="-1" class="mb-6 text-admin-title font-bold">Ajouter un produit</h1>
+    <form novalidate aria-labelledby="product-form-title" class="flex flex-col gap-6">
+      <div class="grid min-w-0 items-start gap-7 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+        <div class="flex min-w-0 flex-col gap-4 rounded-admin-panel bg-om-fond p-6">
+          <slot name="name"></slot>
+          <label for="product-description" class="flex flex-col gap-2 text-[11px] text-om-texte-doux">Description
+            <textarea id="product-description" required maxlength="20000" rows="4" class="w-full rounded-lg border border-om-bordure-champ bg-white px-4 py-3 text-[13px]"></textarea>
+          </label>
+          <label for="product-details" class="flex flex-col gap-2 text-[11px] text-om-texte-doux">Détails (facultatif)
+            <textarea id="product-details" maxlength="20000" rows="3" class="w-full rounded-lg border border-om-bordure-champ bg-white px-4 py-3 text-[13px]"></textarea>
+          </label>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <slot name="price"></slot>
+            <label for="product-category" class="flex min-w-0 flex-col gap-2 text-[11px] text-om-texte-doux">Catégorie
+              <select id="product-category" required class="w-full min-w-0 rounded-lg border border-om-bordure-champ bg-white px-4 py-3 text-[13px]"><option value="">Choisir une catégorie</option></select>
+            </label>
+          </div>
+          <slot name="threshold"></slot>
+          <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="product-new"> Nouveauté</label>
+        </div>
+        <div class="flex min-w-0 flex-col gap-4">
+          <fieldset class="min-w-0 rounded-admin-panel bg-om-fond p-6">
+            <legend class="sr-only">Options et stock par taille</legend>
+            <h2 class="mb-3 text-sm font-semibold [font-family:inherit] normal-case">Options et stock par taille</h2>
+            <p class="mb-3 text-xs text-om-texte-doux">Cochez les tailles proposées. Utilisez « Unique » pour les produits sans taille.</p>
+            <div data-role="variants" class="grid grid-cols-2 gap-3 sm:grid-cols-3"></div>
+            <label class="mt-4 flex items-center gap-2 text-sm"><input type="checkbox" id="product-printing"> Flocage personnalisé</label>
+            <div data-role="printing-price" class="mt-3"><slot name="printing"></slot></div>
+          </fieldset>
+          <fieldset class="min-w-0 rounded-admin-panel bg-om-fond p-6">
+            <legend class="sr-only">Images du produit</legend>
+            <label for="product-images" class="mb-3 block text-sm font-semibold">Images</label>
+            <input id="product-images" type="file" accept="image/jpeg,image/png,image/webp" multiple class="block w-full min-w-0 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-om-fond-doux file:px-3 file:py-3 file:text-om-bleu">
+            <p id="image-help" class="my-3 text-xs text-om-texte-doux">1 à 8 images. JPEG, PNG ou WebP, 2 Mo par image, 4 Mo de nouvelles images au total. Redimensionnées à 1 600 pixels maximum. La première est l’image principale.</p>
+            <ul data-role="images" class="grid grid-cols-2 gap-3"></ul>
+          </fieldset>
+        </div>
+      </div>
+      <p role="alert" data-role="form-error" tabindex="-1" class="rounded-lg bg-om-erreur-fond p-3 text-sm text-om-erreur" hidden></p>
+      <div class="flex flex-wrap gap-3">
+        <button type="submit" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white hover:bg-om-bleu-moyen disabled:opacity-65">Enregistrer le produit</button>
+        <button type="button" data-action="cancel-edit" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu disabled:opacity-65">Annuler</button>
+      </div>
+    </form>
+  </div>
+</section>

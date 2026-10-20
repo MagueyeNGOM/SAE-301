@@ -6,6 +6,7 @@ use App\Controller\AuthController;
 use App\Controller\AdminAuthController;
 use App\Controller\CatalogueController;
 use App\Controller\CategoryController;
+use App\Controller\ProductController;
 use App\Controller\OrderController;
 use App\Controller\StatsController;
 
@@ -35,4 +36,8 @@ return [
     'GET  /api/admin/categories' => [CategoryController::class, 'index'],
     'POST /api/admin/categories/save' => [CategoryController::class, 'save'],
     'POST /api/admin/categories/delete' => [CategoryController::class, 'delete'],
+    'GET  /api/admin/produits' => [ProductController::class, 'index'],
+    'GET  /api/admin/produit' => [ProductController::class, 'show'],
+    'POST /api/admin/produits/save' => [ProductController::class, 'save'],
+    'POST /api/admin/produits/delete' => [ProductController::class, 'delete'],
 ];

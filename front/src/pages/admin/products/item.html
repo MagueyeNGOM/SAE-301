@@ -1,0 +1,9 @@
+<tr>
+  <th scope="row" class="px-4 py-4 font-normal wrap-anywhere">{{nom}}</th>
+  <td class="px-4 py-4 wrap-anywhere">{{categorie}}</td><td class="px-4 py-4 whitespace-nowrap">{{prix}}</td>
+  <td class="px-4 py-4">{{quantite_stock}}</td><td class="px-4 py-4"><slot name="stock"></slot></td>
+  <td class="px-4 py-4"><div class="flex flex-wrap gap-3">
+    <button type="button" data-action="edit" aria-label="Modifier le produit {{nom}}" class="text-om-bleu hover:underline disabled:opacity-65">Modifier</button>
+    <button type="button" data-action="delete" aria-label="Supprimer le produit {{nom}}" class="text-om-texte-doux hover:underline disabled:opacity-65">Supprimer</button>
+  </div></td>
+</tr>

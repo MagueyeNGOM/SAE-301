@@ -56,6 +56,7 @@ INSERT INTO taille VALUES (1, 'L', 1);
 INSERT INTO stock VALUES (1, 1, 3), (2, 1, 8);
 INSERT INTO commande VALUES (1);");
 $pdo->exec(file_get_contents(${quote(path.join(root, 'sql/migrations/gof-c-category-description.sql'))}));
+$pdo->exec(file_get_contents(${quote(path.join(root, 'sql/migrations/gof-a-product-stock-threshold.sql'))}));
 if ($pdo->query('SELECT COUNT(*) FROM categorie')->fetchColumn() != 3 || $pdo->query('SELECT COUNT(*) FROM produit')->fetchColumn() != 2) exit(1);
 $query = $pdo->prepare('INSERT INTO utilisateur VALUES (?, ?, ?, ?, ?)');
 foreach (['admin', 'client'] as $i => $role) $query->execute([$i + 1, $role, $role . '@example.test', password_hash(getenv('GOF_C_PASSWORD'), PASSWORD_BCRYPT), $role]);

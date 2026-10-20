@@ -25,6 +25,7 @@ export default defineConfig({
   server: {
     proxy: {
       [BASE + "api"]: { target: SERVEUR, changeOrigin: true },
+      [BASE + "images/produits/om-"]: { target: SERVEUR, changeOrigin: true },
     },
   },
 

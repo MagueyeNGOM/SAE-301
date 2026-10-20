@@ -12,6 +12,9 @@ Options -Indexes
 
 RewriteEngine On
 
+# Images ajoutées par l'administration : JPEG réencodés, conservés hors du build.
+RewriteRule ^images/produits/(om-[a-f0-9]{32}\.jpg)$ back/storage/product-images/$1 [END]
+
 # 1. Toute requête /api/... est confiée au back (l'API JSON).
 #    QSA conserve la chaîne de requête (?page=2), END arrête la réécriture.
 RewriteRule ^api/ back/index.php [END,QSA]

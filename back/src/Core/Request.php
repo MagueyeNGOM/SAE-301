@@ -51,7 +51,15 @@ final class Request
 
         $corps = [];
         if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
-            $brut    = file_get_contents('php://input') ?: '';
+            if (str_starts_with($chemin, '/api/admin/') && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 6291456) {
+                Response::erreur('La requête dépasse 6 Mo. Réduisez le nombre ou le poids des images.', 413);
+            }
+            $admin = str_starts_with($chemin, '/api/admin/');
+            $brut = $admin ? file_get_contents('php://input', false, null, 0, 6291457) : file_get_contents('php://input');
+            if ($admin && strlen($brut ?: '') > 6291456) {
+                Response::erreur('La requête dépasse 6 Mo. Réduisez le nombre ou le poids des images.', 413);
+            }
+            $brut = $brut ?: '';
             $decode  = json_decode($brut, true);
             $corps   = is_array($decode) ? $decode : [];
         }

@@ -74,6 +74,7 @@ CREATE TABLE produit (
     prix_flocage DECIMAL(5,2)      NULL,
     image        VARCHAR(255)      NOT NULL,
     nouveaute    BOOLEAN           NOT NULL DEFAULT FALSE,
+    seuil_stock  SMALLINT UNSIGNED NULL DEFAULT NULL,
     date_ajout   DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
