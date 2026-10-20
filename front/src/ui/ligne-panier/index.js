@@ -1,4 +1,4 @@
-import { CartData, QUANTITE_MAX } from "../../data/cart.js";
+import { CartData } from "../../data/cart.js";
 import { genericRenderer, htmlToFragment } from "../../lib/utils.js";
 import { formaterPrix } from "../../lib/format.js";
 import template from "./template.html?raw";
@@ -29,7 +29,7 @@ let LignePanierView = {
 
     // Les bornes sont celles du panier : au moins 1 (« Supprimer » retire la ligne).
     moins.disabled = ligne.quantite <= 1;
-    plus.disabled = ligne.quantite >= QUANTITE_MAX;
+    plus.disabled = ligne.quantite >= CartData.maximum(ligne);
 
     moins.addEventListener("click", () => actions.surQuantite(cle, ligne.quantite - 1));
     plus.addEventListener("click", () => actions.surQuantite(cle, ligne.quantite + 1));

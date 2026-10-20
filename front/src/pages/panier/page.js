@@ -48,10 +48,26 @@ C.handler_modifier = async function (cle) {
   V.rafraichir();
 };
 
-C.handler_enregistrer = function (cle, options) {
+C.handler_enregistrer = async function (cle, options) {
   CartData.modifierOptions(cle, options);
   M.edition = null;
+  await C.synchroniser();
   C.recharger();
+};
+
+// STK-C : relit le stock réel des produits du panier et ajuste les quantités.
+// Si un produit ne peut pas être relu, ses lignes restent : le serveur vérifie à la validation.
+C.synchroniser = async function () {
+  let slugs = [...new Set(CartData.lire().map((l) => l.slug))];
+  let reponses = await Promise.allSettled(slugs.map((slug) => ProductData.fetchOne(slug)));
+  let produits = {};
+  reponses.forEach((r, i) => {
+    if (r.status === "fulfilled") {
+      produits[slugs[i]] = r.value;
+    }
+  });
+  let messages = CartData.ajusterStocks(produits);
+  M.message = messages.length > 0 ? { type: "erreur", texte: messages.join(" ") } : null;
 };
 
 C.handler_annuler = function () {
@@ -64,10 +80,10 @@ C.recharger = function () {
   V.rafraichir();
 };
 
-C.init = function () {
-  M.lignes = CartData.lire();
-  M.message = null;
+C.init = async function () {
   M.edition = null;
+  await C.synchroniser();
+  M.lignes = CartData.lire();
   return V.init();
 };
 
