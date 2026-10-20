@@ -78,5 +78,10 @@ Présenter brièvement :
 Ne jamais déclarer une US terminée
 si ses critères obligatoires ne sont pas validés.
 
+Conserver les informations utiles aux prochaines tâches dans le skill de domaine
+concerné, avec les résultats détaillés et datés dans ses références si nécessaire.
+Ne pas créer de compte rendu dans `docs/` sauf demande explicite, et ne pas
+présenter une ancienne validation comme un test effectué pendant la tâche actuelle.
+
 Ne modifier le code que si l'utilisateur
 a explicitement demandé de le faire.

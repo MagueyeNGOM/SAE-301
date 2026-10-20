@@ -22,21 +22,34 @@ Aucun paiement en ligne. Base de code fournie : conserver son architecture.
 - Utiliser `nouvelle-us` au démarrage d'une US.
 - Utiliser `verifier-us` pour sa validation.
 
+## Skills et mémoire du projet
+- Au début de chaque tâche, consulter les skills de domaine pertinents
+  dans `.agents/skills/`, en plus des règles utiles.
+- Après une tâche autorisée, mettre à jour le skill concerné si le travail
+  apporte des informations durables : fonctionnement, fichiers, contraintes,
+  migrations ou vérifications nécessaires.
+- Réutiliser le skill existant ; créer un nouveau skill seulement si aucun
+  ne couvre le domaine. Garder `SKILL.md` court et réutilisable ; placer les
+  procédures détaillées et comptes rendus utiles dans son dossier `references/`.
+- Ne pas créer de comptes rendus d'US dans `docs/`, sauf demande explicite.
+  Conserver `docs/user-stories.md` comme source des critères d'acceptation.
+- Dater les résultats conservés et distinguer tests locaux, déploiement et
+  contrôles restant à faire. Un ancien résultat ne valide pas une nouvelle tâche.
+
 ## Avancement des user stories
 État déclaré au 20/10/2026 : implémentées, validation finale non garantie.
 
-### Réalisées (11 US)
+### Implémentées (14 US)
 - DEC-B : catalogue ; DEC-C : fiches produit ; DEC-A : catégories.
 - CMD-B : panier ; CMD-C : authentification ; CMD-A : commandes.
 - OPT-C : options ; OPT-B : variantes ; OPT-A : options dans les commandes.
 - STK-B : affichage des stocks ; STK-C : limites de stock.
+- GOF-B : accès et authentification admin ; GOF-C : catégories ;
+  GOF-A : produits, images, prix, stocks et options.
+  Ces trois US ont été vérifiées localement ; déploiement et validation
+  sur le serveur cible restent à confirmer.
 
 ### À réaliser (ordre du README.md)
-**Étape 4 — Gérer l'offre**
-- GOF-B : back-office `/admin`, authentification et accès sécurisés.
-- GOF-C : création, modification et suppression des catégories.
-- GOF-A : gestion des produits, images, prix, stocks et options.
-
 **Étape 5 — Piloter l'activité**
 - PIL-B : gestion des commandes, statuts, annulations et journal admin.
 - PIL-A : statistiques des ventes, commandes et stocks, export.
@@ -73,6 +86,8 @@ Aucun paiement en ligne. Base de code fournie : conserver son architecture.
 - `.agents/rules/securite.md` : sécurité et accès.
 - `.agents/skills/nouvelle-us/SKILL.md` : préparation des US.
 - `.agents/skills/verifier-us/SKILL.md` : contrôles de fin d'US.
+- `.agents/skills/back-office/SKILL.md` : accès admin, catégories et produits
+  (GOF-B, GOF-C, GOF-A), avec leurs migrations et vérifications en références.
 
 
 ## Maquettes Figma

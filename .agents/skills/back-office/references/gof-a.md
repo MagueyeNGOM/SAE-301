@@ -1,5 +1,7 @@
 # GOF-A — Gestion des produits
 
+Cette référence regroupe les règles, la mise en place et les vérifications GOF-A.
+
 La section `/admin/produits` remplace l’écran d’attente. Elle permet de créer,
 modifier et supprimer les produits, avec confirmation avant suppression.
 Le formulaire gère le nom, la description, les détails, la catégorie, le prix,

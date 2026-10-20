@@ -14,7 +14,9 @@ qu'il commence une nouvelle US.
 2. Lire ses critères d'acceptation et sa DoD.
 3. Consulter README.md pour les dépendances.
 4. Signaler toute dépendance non confirmée.
-5. Consulter uniquement les fichiers utiles.
+5. Lire le skill de domaine pertinent dans `.agents/skills/`, puis uniquement
+   les fichiers utiles. Pour GOF-B, GOF-C ou GOF-A, utiliser
+   [back-office](../back-office/SKILL.md) et seulement ses références nécessaires.
 6. Identifier les fonctionnalités déjà réalisées
    qui pourraient être affectées.
 7. Donner un plan simple avec :
@@ -39,5 +41,9 @@ qu'il commence une nouvelle US.
 
 - Exécuter les vérifications possibles.
 - Signaler les tests non effectués.
-- Proposer le skill verifier-us.
+- Utiliser le skill verifier-us.
+- Mettre à jour le skill de domaine avec les informations durables du travail
+  réalisé. Si aucun skill ne couvre ce domaine, en créer un dans `.agents/skills/`.
+  Garder les procédures détaillées et résultats datés utiles dans ses références,
+  sans créer de compte rendu dans `docs/` sauf demande explicite.
 - Ne jamais effectuer d'opération Git.
