@@ -18,7 +18,10 @@
     </div>
 
     <section aria-labelledby="titre-commandes" class="flex flex-col gap-5">
-      <h2 id="titre-commandes" class="text-lg font-semibold text-om-texte">Commandes récentes</h2>
+      <div class="flex items-center justify-between gap-4">
+        <h2 id="titre-commandes" class="text-lg font-semibold text-om-texte">Commandes récentes</h2>
+        <a href="/compte/commandes" data-link class="text-[13px] font-semibold text-om-bleu hover:underline">Voir tout</a>
+      </div>
       <p data-role="aucune" class="text-[13px] text-om-texte-doux">Vous n'avez pas encore passé de commande. <a href="/catalogue" data-link class="font-semibold text-om-bleu hover:underline">Voir le catalogue</a></p>
       <ul data-role="commandes" class="flex flex-col gap-3.5"></ul>
     </section>

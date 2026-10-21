@@ -51,13 +51,39 @@ Ces fonctionnalités sont déclarées implémentées.
 - L'identité vient de `$_SESSION` (rôle `client`), jamais de la requête ; 401 sinon.
 - Tout est validé avant écriture ; changement de mot de passe : session régénérée.
 - `AuthController` reçoit `OrderModel` (voir `back/index.php`).
-- L'onglet « Mes commandes » et les boutons « Détail » / « Voir le détail » de la
-  maquette attendent SUI-C.
 - Test : `PHP_BIN=C:/xampp/php/php.exe node tests/sui-b.mjs` (PHP de XAMPP, pas dans le PATH).
 - 21/10/2026, local : test API 24/24 OK ; affichage vérifié (desktop, mobile 375 px,
   sans débordement) avec une API simulée ; build front OK. Non fait : W3C,
   autres navigateurs, essai sur le serveur cible. `tests/pil-b.mjs` échoue
   (table `mouvement_stock` absente de sa fixture, STK-A en cours) : sans lien avec SUI-B.
+
+## Historique des commandes (SUI-C)
+
+- Maquettes Figma P2-07 (liste) et P2-08 (détail). Pages `/compte/commandes` et
+  `/compte/commandes/:numero` (`front/src/pages/compte-commandes/`, `compte-commande/`) ;
+  onglet « Mes commandes » dans `ui/onglets-compte`. Affichage des statuts partagé
+  avec `/compte` dans `front/src/lib/commande.js`. Pagination : `ui/pagination` réutilisé.
+- API : `GET /api/compte/commandes?statut=&periode=30&page=` (6 par page, date décroissante ;
+  statut ou période inconnus : 422) et `GET /api/compte/commande?numero=` (404 si la commande
+  n'est pas celle du client). `AuthController::orders/order`,
+  `OrderModel::historique/detailPourUtilisateur/lignes`. Le détail client n'expose ni email ni téléphone.
+- Filtres : puces statut (une seule) + « 30 derniers jours », cumulables.
+- Hors périmètre : « Commander à nouveau » (SUI-A) ; pas d'image produit dans le détail.
+- Test : `PHP_BIN=C:/xampp/php/php.exe node tests/sui-c.mjs`.
+- Vérification du 21/10/2026, en local (rien sur le serveur cible) :
+  - `tests/sui-c.mjs` 22/22 ; régressions : gof-b 38, gof-c 47, pil-a 9, sui-b 24 OK.
+    `gof-a.mjs` et `pil-b.mjs` échouent : leur fixture SQLite n'a pas la table `mouvement_stock`
+    (STK-A), sans lien avec SUI-C.
+  - Vraie pile : MariaDB 10.4 temporaire (import.sql + migrations) + PHP + front construit.
+    Vraies commandes CMD-A (flocage), pagination, filtres, statuts admin, prix figés, injections SQL
+    refusées (422/404), cloisonnement Alice/Bob : tout OK.
+  - Navigateur, parcours complet (connexion, liste, filtres, pages, détail, commande d'un autre
+    client) : Chrome 155, Edge 155 et Firefox 156 OK, sans erreur console.
+  - W3C : validateur Nu, 0 erreur sur le HTML rendu de `/compte`, de la liste et du détail.
+    Validateur CSS : 42 erreurs, toutes issues de Tailwind v4 (`@property` x40, `margin-trim`,
+    variable de dégradé) ; aucune ne vient du code SUI-C.
+  - Responsive : 375, 768 et desktop sans débordement ; rendu conforme à P2-07 et P2-08.
+  - Reste : essai sur le serveur cible (MySQL de l'IUT).
 
 ## Vérifications
 

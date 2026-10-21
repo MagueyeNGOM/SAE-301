@@ -31,6 +31,8 @@ return [
     'POST /api/logout'      => [AuthController::class,      'logout'],
     'GET  /api/compte'      => [AuthController::class,      'profile'],
     'POST /api/compte/profil' => [AuthController::class,    'updateProfile'],
+    'GET  /api/compte/commandes' => [AuthController::class, 'orders'],
+    'GET  /api/compte/commande' => [AuthController::class,  'order'],
     'POST /api/commande'    => [OrderController::class,     'creer'],
     'POST /api/admin/login' => [AdminAuthController::class, 'login'],
     'GET  /api/admin/me'    => [AdminAuthController::class, 'me'],

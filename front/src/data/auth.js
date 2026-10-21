@@ -47,6 +47,23 @@ AuthData.profil = async function () {
 };
 
 /**
+ * Historique (SUI-C) : GET /api/compte/commandes?statut=&periode=&page= -> { commandes, page, pages }
+ */
+AuthData.commandes = async function ({ statut, periode, page }) {
+  let params = new URLSearchParams({ page });
+  if (statut) params.set("statut", statut);
+  if (periode) params.set("periode", periode);
+  return getRequest("compte/commandes?" + params);
+};
+
+/**
+ * Détail d'une commande du client : GET /api/compte/commande?numero=OM-000001
+ */
+AuthData.commande = async function (numero) {
+  return getRequest("compte/commande?numero=" + encodeURIComponent(numero));
+};
+
+/**
  * Modifie nom, email et (si « nouveau » est rempli) le mot de passe :
  * POST /api/compte/profil. L'ancien mot de passe est alors exigé.
  */

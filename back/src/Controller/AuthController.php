@@ -116,6 +116,45 @@ final class AuthController
     }
 
     /**
+     * Historique des commandes du client connecté (SUI-C), 6 par page.
+     * Filtres facultatifs : ?statut=… et ?periode=30 (30 derniers jours).
+     */
+    public function orders(Request $requete): void
+    {
+        $id     = $this->clientConnecte();
+        $statut = $requete->parametre('statut');
+        if ($statut !== null && !in_array($statut, ['en cours', 'disponible', 'retirée', 'annulée'], true)) {
+            Response::erreur('Statut inconnu.', 422);
+        }
+        $periode = $requete->parametre('periode');
+        if ($periode !== null && $periode !== '30') {
+            Response::erreur('Période inconnue.', 422);
+        }
+        $page = max(1, (int) $requete->parametre('page', '1'));
+
+        $parPage    = 6;
+        $historique = $this->commandes->historique($id, $statut, $periode === null ? null : 30, $page, $parPage);
+
+        Response::json([
+            'commandes' => $historique['commandes'],
+            'page'      => $page,
+            'pages'     => max(1, (int) ceil($historique['total'] / $parPage)),
+        ]);
+    }
+
+    /** Détail d'une commande du client connecté (SUI-C) : 404 si elle n'est pas la sienne. */
+    public function order(Request $requete): void
+    {
+        $id       = $this->clientConnecte();
+        $commande = $this->commandes->detailPourUtilisateur($id, (string) $requete->parametre('numero', ''));
+        if ($commande === null) {
+            Response::erreur('Commande introuvable.', 404);
+        }
+
+        Response::json($commande);
+    }
+
+    /**
      * Modifie nom, email et, si « nouveau » est rempli, le mot de passe.
      * Le mot de passe actuel est alors exigé : une session volée ne suffit pas
      * à prendre le contrôle du compte. Tout est validé avant la moindre écriture.
