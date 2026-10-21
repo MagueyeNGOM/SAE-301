@@ -80,6 +80,7 @@ final class OrderModel
                     if ($retrait->rowCount() === 0) {
                         throw new DomainException('Le stock de « ' . $l['nom'] . ' » a changé : quantité insuffisante. Ajustez votre panier.');
                     }
+                    $this->journaliserStock((int) $l['produit_id'], (int) $l['taille_id'], $id, 'commande', -(int) $l['quantite']);
                 }
                 $ligne->execute([
                     'commande' => $id,
@@ -101,6 +102,15 @@ final class OrderModel
         }
 
         return $numero;
+    }
+
+    /** Ajoute un mouvement au journal de stock ; à appeler dans la transaction qui modifie le stock. */
+    private function journaliserStock(int $produitId, int $tailleId, int $commandeId, string $type, int $quantite): void
+    {
+        $this->pdo->prepare(
+            'INSERT INTO mouvement_stock (produit_id, taille_id, commande_id, type, quantite)
+             VALUES (:produit, :taille, :commande, :type, :quantite)'
+        )->execute(['produit' => $produitId, 'taille' => $tailleId, 'commande' => $commandeId, 'type' => $type, 'quantite' => $quantite]);
     }
 
     /** Commandes de tous les clients, triées (date, statut ou montant) et filtrées par statut. */
@@ -244,6 +254,10 @@ final class OrderModel
                 );
                 foreach ($lignes->fetchAll() as $l) {
                     $remise->execute(['q' => $l['quantite'], 'produit' => $l['produit_id'], 'taille' => $l['taille_id']]);
+                    // Taille supprimée depuis la commande : rien n'est remis, rien n'est journalisé.
+                    if ($remise->rowCount() > 0) {
+                        $this->journaliserStock((int) $l['produit_id'], (int) $l['taille_id'], $id, 'annulation', (int) $l['quantite']);
+                    }
                 }
             }
 

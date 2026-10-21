@@ -22,7 +22,8 @@ Déploiement, migrations MySQL et rendu navigateur restent à confirmer.
   `quantite >= :q`) ; un stock devenu insuffisant renvoie 409 et rien n'est enregistré.
 - `commande.stock_decremente` vaut 1 pour les commandes créées ensuite ; les anciennes
   (valeur 0) n'ont rien retiré, leur annulation ne remet donc rien en stock.
-- Restent à faire pour STK-A : journal des mouvements de stock, tests de commandes concurrentes.
+- Journal des mouvements et tests de concurrence : faits avec STK-A (21/10/2026), voir
+  `../../gestion-stocks/SKILL.md`. Migration en plus : `stk-a-stock-movement.sql`.
 - Si une taille est retirée d'un produit après la commande, sa remise en stock est ignorée.
 
 ## Migrations (à lancer une fois, dans l'ordre, avant de déployer le back)
