@@ -1,0 +1,15 @@
+<div>
+  <h1 class="px-4 py-5 text-2xl font-bold text-om-texte md:px-10 md:py-7 md:text-[28px]">Mon profil</h1>
+  <slot name="onglets"></slot>
+
+  <div class="px-4 py-6 md:px-10 md:py-7">
+    <form novalidate class="flex flex-col gap-4 rounded-[14px] bg-om-fond p-5 md:w-[520px] md:p-7">
+      <slot name="champs"></slot>
+      <slot name="message"></slot>
+      <div class="flex gap-3">
+        <button type="submit" class="rounded-lg bg-om-bleu px-6 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-om-bleu-fonce">Enregistrer</button>
+        <button type="button" data-role="annuler" class="rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu transition-colors hover:bg-white">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>

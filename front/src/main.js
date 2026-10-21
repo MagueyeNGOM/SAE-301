@@ -10,6 +10,8 @@ import { RecapitulatifPage } from "./pages/recapitulatif/page.js";
 import { ConfirmationPage } from "./pages/confirmation/page.js";
 import { ConnexionPage } from "./pages/connexion/page.js";
 import { InscriptionPage } from "./pages/inscription/page.js";
+import { ComptePage } from "./pages/compte/page.js";
+import { CompteProfilPage } from "./pages/compte-profil/page.js";
 import { AdminPage } from "./pages/admin/page.js";
 import { The404Page } from "./pages/404/page.js";
 
@@ -35,6 +37,8 @@ router.addRoute("/recapitulatif", RecapitulatifPage);
 router.addRoute("/confirmation", ConfirmationPage);
 router.addRoute("/connexion", ConnexionPage);
 router.addRoute("/inscription", InscriptionPage);
+router.addRoute("/compte", ComptePage);
+router.addRoute("/compte/profil", CompteProfilPage);
 router.addRoute("/admin", AdminPage);
 router.addRoute("/admin/:section", AdminPage);
 router.addRoute("/admin/*", () => AdminPage({ section: "unknown" }));
