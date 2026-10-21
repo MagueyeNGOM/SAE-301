@@ -38,6 +38,24 @@ AuthData.logout = async function () {
   return reponse;
 };
 
+/**
+ * Espace personnel (SUI-B) : GET /api/compte -> { nom, email, depuis, commandes }
+ * Erreur 401 si le client n'est pas connecté.
+ */
+AuthData.profil = async function () {
+  return getRequest("compte");
+};
+
+/**
+ * Modifie nom, email et (si « nouveau » est rempli) le mot de passe :
+ * POST /api/compte/profil. L'ancien mot de passe est alors exigé.
+ */
+AuthData.modifierProfil = async function (valeurs) {
+  let reponse = await postRequest("compte/profil", valeurs);
+  AuthData.signaler(); // l'en-tête affiche le nom
+  return reponse;
+};
+
 // L'en-tête s'abonne à « auth:change » pour suivre la session, comme le
 // compteur suit « panier:change ».
 AuthData.signaler = function () {

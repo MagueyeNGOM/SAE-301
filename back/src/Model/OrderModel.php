@@ -113,6 +113,21 @@ final class OrderModel
         )->execute(['produit' => $produitId, 'taille' => $tailleId, 'commande' => $commandeId, 'type' => $type, 'quantite' => $quantite]);
     }
 
+    /** Dernières commandes d'un client (SUI-B), filtrées par utilisateur_id : jamais celles des autres. */
+    public function recentesPourUtilisateur(int $utilisateurId, int $limite = 3): array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT numero, statut, total, date_commande
+               FROM commande
+              WHERE utilisateur_id = :utilisateur
+              ORDER BY date_commande DESC, id DESC
+              LIMIT ' . $limite
+        );
+        $requete->execute(['utilisateur' => $utilisateurId]);
+
+        return $requete->fetchAll();
+    }
+
     /** Commandes de tous les clients, triées (date, statut ou montant) et filtrées par statut. */
     public function liste(string $tri, bool $croissant, ?string $statut): array
     {

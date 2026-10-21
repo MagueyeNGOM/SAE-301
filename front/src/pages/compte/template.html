@@ -1,0 +1,26 @@
+<div>
+  <h1 class="px-4 py-5 text-2xl font-bold text-om-texte md:px-10 md:py-7 md:text-[28px]">Bonjour <span data-role="nom"></span></h1>
+  <slot name="onglets"></slot>
+
+  <div data-role="contenu" class="flex flex-col gap-5 px-4 py-6 md:px-10 md:py-7">
+    <div class="flex flex-col gap-5 md:flex-row md:items-start">
+      <section data-role="en-cours" aria-labelledby="titre-en-cours" class="flex flex-col gap-4 rounded-[14px] bg-om-bleu-fonce p-6 md:flex-1">
+        <h2 id="titre-en-cours" class="text-sm font-semibold text-white">Commande en cours · <span data-role="numero"></span></h2>
+        <ol data-role="suivi" class="flex items-start"></ol>
+      </section>
+
+      <section aria-labelledby="titre-informations" class="flex flex-col gap-2 rounded-[14px] bg-om-fond p-6 md:w-[360px] md:shrink-0">
+        <h2 id="titre-informations" class="text-sm font-semibold text-om-texte">Mes informations</h2>
+        <p class="text-[13px] text-om-texte-doux">Nom : <span data-role="info-nom"></span></p>
+        <p class="text-[13px] text-om-texte-doux">E-mail : <span data-role="info-email" class="break-all"></span></p>
+        <a href="/compte/profil" data-link class="mt-2 w-fit rounded-lg bg-om-fond-doux px-6 py-3 text-[13px] font-semibold text-om-bleu transition-colors hover:bg-white">Modifier mon profil</a>
+      </section>
+    </div>
+
+    <section aria-labelledby="titre-commandes" class="flex flex-col gap-5">
+      <h2 id="titre-commandes" class="text-lg font-semibold text-om-texte">Commandes récentes</h2>
+      <p data-role="aucune" class="text-[13px] text-om-texte-doux">Vous n'avez pas encore passé de commande. <a href="/catalogue" data-link class="font-semibold text-om-bleu hover:underline">Voir le catalogue</a></p>
+      <ul data-role="commandes" class="flex flex-col gap-3.5"></ul>
+    </section>
+  </div>
+</div>

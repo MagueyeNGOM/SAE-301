@@ -75,7 +75,7 @@ try {
         CatalogueController::class => new CatalogueController($produits),
         CategoryController::class  => new CategoryController(new CategoryModel($pdo)),
         ProductController::class   => new ProductController($produits, new CategoryModel($pdo), new ProductImages(__DIR__ . '/storage/product-images')),
-        AuthController::class      => new AuthController(new UserModel($pdo)),
+        AuthController::class      => new AuthController(new UserModel($pdo), $orders),
         AdminAuthController::class => new AdminAuthController(new UserModel($pdo)),
         OrderController::class     => new OrderController($orders, $produits),
         AdminOrderController::class => new AdminOrderController($orders),

@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Model\OrderModel;
 use App\Model\UserModel;
 
 /**
@@ -20,9 +21,13 @@ final class AuthController
     /** Le modèle qui interroge la base, fourni à la construction. */
     private UserModel $utilisateurs;
 
-    public function __construct(UserModel $utilisateurs)
+    /** Commandes récentes de l'espace personnel (SUI-B). */
+    private OrderModel $commandes;
+
+    public function __construct(UserModel $utilisateurs, OrderModel $commandes)
     {
         $this->utilisateurs = $utilisateurs;
+        $this->commandes    = $commandes;
     }
 
     public function register(Request $requete): void
@@ -92,6 +97,85 @@ final class AuthController
             'nom'      => $_SESSION['nom'],
             'role'     => $_SESSION['role'],
         ]);
+    }
+
+    /**
+     * Espace personnel (SUI-B) : profil et commandes récentes du client connecté.
+     */
+    public function profile(): void
+    {
+        $id     = $this->clientConnecte();
+        $compte = $this->utilisateurs->parId($id);
+
+        Response::json([
+            'nom'       => $compte['nom'],
+            'email'     => $compte['email'],
+            'depuis'    => $compte['date_creation'],
+            'commandes' => $this->commandes->recentesPourUtilisateur($id),
+        ]);
+    }
+
+    /**
+     * Modifie nom, email et, si « nouveau » est rempli, le mot de passe.
+     * Le mot de passe actuel est alors exigé : une session volée ne suffit pas
+     * à prendre le contrôle du compte. Tout est validé avant la moindre écriture.
+     */
+    public function updateProfile(Request $requete): void
+    {
+        $id      = $this->clientConnecte();
+        $corps   = $requete->corps();
+        $nom     = trim((string) ($corps['nom'] ?? ''));
+        $email   = strtolower(trim((string) ($corps['email'] ?? '')));
+        $actuel  = (string) ($corps['actuel'] ?? '');
+        $nouveau = (string) ($corps['nouveau'] ?? '');
+
+        if ($nom === '' || mb_strlen($nom) > 60) {
+            Response::erreur('Le nom est obligatoire (60 caractères maximum).', 422);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 190) {
+            Response::erreur("L'adresse email n'est pas valide.", 422);
+        }
+
+        $autre = $this->utilisateurs->parEmail($email);
+        if ($autre !== null && (int) $autre['id'] !== $id) {
+            Response::erreur('Un compte existe déjà avec cette adresse email.', 409);
+        }
+
+        $hash = null;
+        if ($nouveau !== '') {
+            $compte = $this->utilisateurs->parId($id);
+            if ($actuel === '' || !password_verify($actuel, $compte['password_hash'])) {
+                Response::erreur('Le mot de passe actuel est incorrect.', 403);
+            }
+            // bcrypt ignore tout ce qui dépasse 72 octets : on refuse plutôt que de tronquer.
+            if (mb_strlen($nouveau) < 8 || strlen($nouveau) > 72) {
+                Response::erreur('Le nouveau mot de passe doit contenir entre 8 et 72 caractères.', 422);
+            }
+            $hash = password_hash($nouveau, PASSWORD_DEFAULT);
+        }
+
+        $this->utilisateurs->modifierProfil($id, $nom, $email);
+        $_SESSION['nom'] = $nom;
+        if ($hash !== null) {
+            $this->utilisateurs->modifierMdp($id, $hash);
+            // Nouvel identifiant de session, sans perdre la connexion en cours.
+            session_regenerate_id(true);
+        }
+
+        Response::json(['nom' => $nom, 'email' => $email, 'mdpModifie' => $hash !== null]);
+    }
+
+    /**
+     * Identifiant du client connecté, lu en session et jamais dans la requête.
+     * Sans session client : 401.
+     */
+    private function clientConnecte(): int
+    {
+        if (!isset($_SESSION['utilisateur']) || ($_SESSION['role'] ?? '') !== 'client') {
+            Response::erreur('Connectez-vous pour accéder à votre espace.', 401);
+        }
+
+        return (int) $_SESSION['utilisateur'];
     }
 
     public function logout(): void
