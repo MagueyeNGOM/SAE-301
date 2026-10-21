@@ -46,8 +46,8 @@ du code actuel. Actualiser la référence concernée après un changement valid�
   le back ni les migrations. Ne pas confondre validation locale et serveur cible.
 - Conserver les images ajoutées dans `back/storage/product-images/`, hors du build,
   avec leurs contrôles et leur réencodage. Ne pas supprimer ce dossier au déploiement.
-- STK-A reste à réaliser : les transactions de sauvegarde d'un produit ne prouvent
-  aucune décrémentation ou restauration automatique du stock lors des commandes.
+- STK-A (journal `mouvement_stock`, stock décrémenté/restauré par `OrderModel`) est
+  décrite dans `gestion-stocks`. Les transactions de sauvegarde d'un produit ne la prouvent pas.
 
 ## Vérifier les changements concernés
 
