@@ -1,0 +1,11 @@
+<div>
+  <h1 class="px-4 py-5 text-2xl font-bold text-om-texte md:px-10 md:py-7 md:text-[28px]">Mes commandes</h1>
+  <slot name="onglets"></slot>
+
+  <div class="flex flex-col gap-5 px-4 py-6 md:px-10 md:py-7">
+    <div data-role="filtres" role="group" aria-label="Filtrer mes commandes" class="flex flex-wrap gap-2.5"></div>
+    <p data-role="aucune" hidden class="text-[13px] text-om-texte-doux">Aucune commande ne correspond.</p>
+    <ul data-role="commandes" class="flex flex-col gap-3.5"></ul>
+    <slot name="pagination"></slot>
+  </div>
+</div>

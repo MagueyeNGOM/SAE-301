@@ -210,13 +210,6 @@ final class OrderModel
             return null;
         }
 
-        $lignes = $this->pdo->prepare(
-            'SELECT l.nom_produit, l.quantite, l.prix_unitaire, l.flocage_nom, l.flocage_numero, l.prix_flocage, t.libelle
-             FROM ligne_commande l LEFT JOIN taille t ON t.id = l.taille_id
-             WHERE l.commande_id = :id ORDER BY l.id'
-        );
-        $lignes->execute(['id' => $id]);
-
         return [
             'id'      => (int) $c['id'],
             'numero'  => $c['numero'],
@@ -225,13 +218,82 @@ final class OrderModel
             'date'    => $c['date_commande'],
             'retrait' => $c['date_retrait'],
             'client'  => ['nom' => trim($c['prenom'] . ' ' . $c['nom']), 'email' => $c['email'], 'telephone' => $c['telephone']],
-            'lignes'  => array_map(static fn (array $l): array => [
-                'nom'      => $l['nom_produit'],
-                'taille'   => $l['libelle'],
-                'quantite' => (int) $l['quantite'],
-                'prix'     => (float) $l['prix_unitaire'],
-                'flocage'  => $l['flocage_nom'] === null ? null : ['nom' => $l['flocage_nom'], 'numero' => (int) $l['flocage_numero'], 'prix' => (float) $l['prix_flocage']],
-            ], $lignes->fetchAll()),
+            'lignes'  => $this->lignes($id),
+        ];
+    }
+
+    /** Lignes d'une commande : nom et prix figés, taille et flocage choisis (CMD-A, OPT-A). */
+    private function lignes(int $commandeId): array
+    {
+        $lignes = $this->pdo->prepare(
+            'SELECT l.nom_produit, l.quantite, l.prix_unitaire, l.flocage_nom, l.flocage_numero, l.prix_flocage, t.libelle
+             FROM ligne_commande l LEFT JOIN taille t ON t.id = l.taille_id
+             WHERE l.commande_id = :id ORDER BY l.id'
+        );
+        $lignes->execute(['id' => $commandeId]);
+
+        return array_map(static fn (array $l): array => [
+            'nom'      => $l['nom_produit'],
+            'taille'   => $l['libelle'],
+            'quantite' => (int) $l['quantite'],
+            'prix'     => (float) $l['prix_unitaire'],
+            'flocage'  => $l['flocage_nom'] === null ? null : ['nom' => $l['flocage_nom'], 'numero' => (int) $l['flocage_numero'], 'prix' => (float) $l['prix_flocage']],
+        ], $lignes->fetchAll());
+    }
+
+    /**
+     * Historique d'un client (SUI-C) : ses commandes seulement, de la plus récente à la plus
+     * ancienne, filtrées par statut et/ou par nombre de jours, une page à la fois.
+     *
+     * Renvoie ['commandes' => …, 'total' => nombre de commandes correspondantes].
+     */
+    public function historique(int $utilisateurId, ?string $statut, ?int $jours, int $page, int $parPage): array
+    {
+        $where  = 'utilisateur_id = :utilisateur';
+        $params = ['utilisateur' => $utilisateurId];
+        if ($statut !== null) {
+            $where .= ' AND statut = :statut';
+            $params['statut'] = $statut;
+        }
+        if ($jours !== null) {
+            // Le jour courant vient de la base, comme date_commande : pas de décalage de fuseau avec PHP.
+            $depuis = (new \DateTimeImmutable((string) $this->pdo->query('SELECT CURRENT_TIMESTAMP')->fetchColumn()))->modify("-$jours day");
+            $where .= ' AND date_commande >= :depuis';
+            $params['depuis'] = $depuis->format('Y-m-d H:i:s');
+        }
+
+        $nombre = $this->pdo->prepare('SELECT COUNT(*) FROM commande WHERE ' . $where);
+        $nombre->execute($params);
+
+        $liste = $this->pdo->prepare(
+            'SELECT numero, statut, total, date_commande FROM commande WHERE ' . $where
+            . ' ORDER BY date_commande DESC, id DESC LIMIT ' . $parPage . ' OFFSET ' . (($page - 1) * $parPage)
+        );
+        $liste->execute($params);
+
+        return ['commandes' => $liste->fetchAll(), 'total' => (int) $nombre->fetchColumn()];
+    }
+
+    /** Une commande d'un client (SUI-C), ou null si elle n'existe pas ou appartient à un autre. */
+    public function detailPourUtilisateur(int $utilisateurId, string $numero): ?array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT id, numero, statut, total, date_commande, date_retrait
+             FROM commande WHERE numero = :numero AND utilisateur_id = :utilisateur'
+        );
+        $requete->execute(['numero' => $numero, 'utilisateur' => $utilisateurId]);
+        $c = $requete->fetch();
+        if ($c === false) {
+            return null;
+        }
+
+        return [
+            'numero'  => $c['numero'],
+            'statut'  => $c['statut'],
+            'total'   => (float) $c['total'],
+            'date'    => $c['date_commande'],
+            'retrait' => $c['date_retrait'],
+            'lignes'  => $this->lignes((int) $c['id']),
         ];
     }
 

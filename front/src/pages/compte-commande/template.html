@@ -1,0 +1,26 @@
+<div>
+  <div class="flex flex-col gap-1 px-4 pb-4 pt-5 md:px-10 md:pt-7">
+    <a href="/compte/commandes" data-link class="w-fit text-xs font-semibold text-om-bleu hover:underline">‹ Mes commandes</a>
+    <h1 class="text-2xl font-bold text-om-texte md:text-[28px]">Commande <span data-role="numero"></span></h1>
+    <p data-role="date" class="text-[13px] text-om-texte-doux"></p>
+  </div>
+  <slot name="onglets"></slot>
+
+  <div data-role="contenu" class="flex flex-col gap-5 px-4 py-6 md:flex-row md:items-start md:px-10 md:py-7">
+    <div class="flex flex-col gap-3.5 md:flex-1">
+      <ol data-role="suivi" aria-label="Avancement de la commande" class="flex items-start justify-center rounded-[14px] bg-om-fond p-6"></ol>
+      <p data-role="annulee" hidden class="rounded-[14px] bg-om-erreur-fond p-4 text-[13px] font-semibold text-om-erreur">Cette commande a été annulée.</p>
+      <ul data-role="lignes" class="flex flex-col gap-3.5"></ul>
+    </div>
+
+    <aside aria-labelledby="titre-recap" class="flex flex-col gap-3.5 md:w-[290px] md:shrink-0">
+      <section class="flex flex-col gap-3 rounded-[14px] bg-om-fond p-[18px]">
+        <h2 id="titre-recap" class="text-base font-semibold text-om-texte">Récapitulatif</h2>
+        <p class="flex items-center justify-between text-[13px] text-om-texte-doux">Statut <span data-role="statut" class="rounded-md px-2 py-1 text-[10px] font-semibold"></span></p>
+        <p data-role="retrait" hidden class="flex items-center justify-between text-[13px] text-om-texte-doux">Retirée le <span data-role="date-retrait"></span></p>
+        <p class="flex items-center justify-between text-sm font-semibold text-om-texte">Total <span data-role="total" class="text-xl"></span></p>
+      </section>
+      <a href="/compte/commandes" data-link class="rounded-lg bg-om-fond-doux px-6 py-3 text-center text-[13px] font-semibold text-om-bleu transition-colors hover:bg-white">Retour aux commandes</a>
+    </aside>
+  </div>
+</div>
