@@ -123,6 +123,46 @@ CartData.ajouter = function (produit, options = {}) {
   return "";
 };
 
+// Commander à nouveau (SUI-A). lignes : celles de /api/compte/recommander, déjà confrontées
+// au catalogue et au stock actuels (prix actuels, pas ceux de l'ancienne commande).
+// Les articles s'ajoutent à ceux du panier, dans la limite du stock. Renvoie { ajoutees, messages }.
+CartData.ajouterCommande = function (lignes) {
+  let panier = CartData.lire();
+  let ajoutees = 0;
+  let messages = [];
+  for (let l of lignes) {
+    if (l.statut === "indisponible") {
+      messages.push(l.message);
+      continue;
+    }
+    if (l.statut === "ajustee") {
+      messages.push(l.message);
+    }
+    let nouvelle = {
+      slug: l.slug, nom: l.nom, prix: l.prix, image: l.image, quantite: l.quantite,
+      taille: l.taille ? { id: l.taille.id, libelle: l.taille.libelle } : null,
+      flocage: l.flocage, prixFlocage: l.prixFlocage, stock: l.taille?.stock ?? null,
+    };
+    let existante = panier.find((p) => CartData.cle(p) === CartData.cle(nouvelle));
+    if (!existante) {
+      nouvelle.quantite = Math.min(nouvelle.quantite, CartData.maximum(nouvelle));
+      panier.push(nouvelle);
+      ajoutees += nouvelle.quantite;
+      continue;
+    }
+    // Le panier contient déjà cet article : le prix et le stock sont remis à jour, la quantité plafonnée.
+    Object.assign(existante, { prix: nouvelle.prix, prixFlocage: nouvelle.prixFlocage, stock: nouvelle.stock });
+    let total = Math.min(existante.quantite + nouvelle.quantite, CartData.maximum(existante));
+    ajoutees += total - existante.quantite;
+    if (total < existante.quantite + nouvelle.quantite) {
+      messages.push(`« ${l.nom} » : la quantité de votre panier a été plafonnée à ${total} (stock ou limite atteints).`);
+    }
+    existante.quantite = total;
+  }
+  CartData.enregistrer(panier);
+  return { ajoutees, messages };
+};
+
 // Remplace la taille et le flocage d'une ligne (OPT-A). options : { taille, flocage }.
 // Si une autre ligne a alors les mêmes options, les deux fusionnent.
 CartData.modifierOptions = function (cle, options) {

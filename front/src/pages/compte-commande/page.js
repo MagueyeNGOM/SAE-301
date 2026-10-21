@@ -1,5 +1,5 @@
 import { AuthData } from "../../data/auth.js";
-import { BADGES, formaterDate, libelleStatut, suivi } from "../../lib/commande.js";
+import { BADGES, formaterDate, libelleStatut, messagesDom, recommander, suivi } from "../../lib/commande.js";
 import { formaterPrix } from "../../lib/format.js";
 import { genericRenderer, htmlToFragment, redirect } from "../../lib/utils.js";
 import { OngletsCompteView } from "../../ui/onglets-compte/index.js";
@@ -22,6 +22,7 @@ const LIGNE = `<li class="flex flex-col gap-1.5 rounded-xl bg-om-fond p-4">
 let M = {
   numero: "",
   commande: null, // détail renvoyé par /api/compte/commande
+  messages: [], // résultat de « Commander à nouveau » : [{ type, texte }]
 };
 
 let C = {};
@@ -29,6 +30,7 @@ let C = {};
 C.init = function (params) {
   M.numero = params.numero;
   M.commande = null;
+  M.messages = [];
   C.charger();
   return V.init();
 };
@@ -40,6 +42,20 @@ C.charger = async function () {
     // 401 : pas de session client. 404 : commande inexistante ou d'un autre client.
     redirect(erreur.statut === 404 ? "/compte/commandes" : "/connexion");
     return;
+  }
+  V.rafraichir();
+};
+
+// SUI-A : le serveur confronte la commande au catalogue actuel, le panier reçoit le résultat.
+C.handler_recommander = async function () {
+  try {
+    M.messages = await recommander(M.numero);
+  } catch (erreur) {
+    if (erreur.statut === 401 || erreur.statut === 404) {
+      redirect(erreur.statut === 404 ? "/compte/commandes" : "/connexion");
+      return;
+    }
+    M.messages = [{ type: "erreur", texte: erreur.message }];
   }
   V.rafraichir();
 };
@@ -73,6 +89,8 @@ V.createPageFragment = function () {
     return fragment;
   }
 
+  fragment.querySelector('slot[name="message"]').replaceWith(messagesDom(M.messages));
+  fragment.querySelector('[data-role="recommander"]').addEventListener("click", C.handler_recommander);
   fragment.querySelector('[data-role="date"]').textContent = "Passée le " + formaterDate(c.date);
   fragment.querySelector('[data-role="total"]').textContent = formaterPrix(c.total);
   let statut = fragment.querySelector('[data-role="statut"]');

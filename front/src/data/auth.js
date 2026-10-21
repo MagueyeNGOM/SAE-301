@@ -64,6 +64,14 @@ AuthData.commande = async function (numero) {
 };
 
 /**
+ * Commander à nouveau (SUI-A) : GET /api/compte/recommander?numero=OM-000001
+ * -> { lignes } confrontées au catalogue et au stock actuels.
+ */
+AuthData.recommander = async function (numero) {
+  return getRequest("compte/recommander?numero=" + encodeURIComponent(numero));
+};
+
+/**
  * Modifie nom, email et (si « nouveau » est rempli) le mot de passe :
  * POST /api/compte/profil. L'ancien mot de passe est alors exigé.
  */

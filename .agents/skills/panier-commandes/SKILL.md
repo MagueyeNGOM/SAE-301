@@ -5,7 +5,7 @@ description: Travailler sur le panier, l'authentification client et la validatio
 
 # Panier et commandes
 
-US concernées : CMD-B, CMD-C, CMD-A.
+US concernées : CMD-B, CMD-C, CMD-A, SUI-B, SUI-C, SUI-A.
 
 Ces fonctionnalités sont déclarées implémentées.
 
@@ -84,6 +84,25 @@ Ces fonctionnalités sont déclarées implémentées.
     variable de dégradé) ; aucune ne vient du code SUI-C.
   - Responsive : 375, 768 et desktop sans débordement ; rendu conforme à P2-07 et P2-08.
   - Reste : essai sur le serveur cible (MySQL de l'IUT).
+
+## Commander à nouveau (SUI-A)
+
+- Bouton « Commander à nouveau » dans la liste (`compte-commandes`) et le détail (`compte-commande`).
+  Logique partagée dans `front/src/lib/commande.js` (`recommander`, `messagesDom`) ;
+  ajout au panier par `CartData.ajouterCommande` (`data/cart.js`).
+- API : `GET /api/compte/recommander?numero=` (`AuthController::reorder`, `OrderModel::reorderLines`) ;
+  401 sans session client, 404 si la commande n'est pas celle du client.
+- Le serveur relit le catalogue : prix, prix du flocage et stock actuels (jamais les anciens prix),
+  taille et flocage de l'époque conservés. Statut par ligne : `ok`, `ajustee` (quantité ramenée au stock,
+  stock partagé entre lignes de même taille), `indisponible` (produit supprimé, taille absente ou épuisée,
+  flocage retiré). Aucune migration.
+- Les articles s'ajoutent au panier existant (quantité cumulée, plafonnée au stock et à 99) ;
+  si rien n'est ajouté, le panier est inchangé. Le stock réel reste revérifié par STK-C au panier et à la commande.
+- Test : `PHP_BIN=C:/xampp/php/php.exe node tests/sui-a.mjs`.
+- 21/10/2026, local : sui-a 11/11 ; régressions sui-b 24, sui-c 22, gof-b 38, gof-c 47, pil-a 9 OK ;
+  build front OK ; Chromium du volet intégré, API simulée (liste et détail, desktop et mobile 375 px,
+  sans débordement ni erreur console). Non fait : W3C (pas de validateur Nu disponible), Edge/Firefox,
+  essai sur la vraie pile MariaDB et sur le serveur cible, comparaison Figma (pas de maquette dédiée).
 
 ## Vérifications
 
