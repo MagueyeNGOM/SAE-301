@@ -50,6 +50,7 @@ CREATE TABLE taille (id INTEGER PRIMARY KEY, libelle TEXT, ordre INTEGER);
 CREATE TABLE stock (produit_id INTEGER, taille_id INTEGER, quantite INTEGER);
 CREATE TABLE image_produit (produit_id INTEGER, fichier TEXT, ordre INTEGER);
 CREATE TABLE commande (id INTEGER PRIMARY KEY AUTOINCREMENT, numero TEXT UNIQUE NOT NULL, utilisateur_id INTEGER NOT NULL, statut TEXT NOT NULL DEFAULT 'en cours', total NUMERIC NOT NULL, date_commande TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, date_retrait TEXT);
+CREATE TABLE mouvement_stock (id INTEGER PRIMARY KEY AUTOINCREMENT, produit_id INTEGER NOT NULL, taille_id INTEGER NOT NULL, commande_id INTEGER NOT NULL, type TEXT NOT NULL, quantite INTEGER NOT NULL, date_mouvement TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE ligne_commande (id INTEGER PRIMARY KEY AUTOINCREMENT, commande_id INTEGER NOT NULL, produit_id INTEGER NOT NULL, taille_id INTEGER, nom_produit TEXT NOT NULL, quantite INTEGER NOT NULL, prix_unitaire NUMERIC NOT NULL, flocage_nom TEXT, flocage_numero INTEGER, prix_flocage NUMERIC NOT NULL DEFAULT 0);
 CREATE TABLE journal_admin (id INTEGER PRIMARY KEY AUTOINCREMENT, admin_id INTEGER NOT NULL, commande_id INTEGER NOT NULL, action TEXT NOT NULL, ancien_statut TEXT NOT NULL, nouveau_statut TEXT NOT NULL, date_action TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 INSERT INTO categorie (nom, slug, ordre) VALUES ('Maillots', 'maillots', 1), ('Entraînement', 'entrainement', 2);

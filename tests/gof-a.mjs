@@ -60,6 +60,7 @@ CREATE TABLE taille (id INTEGER PRIMARY KEY, libelle TEXT, ordre INTEGER);
 CREATE TABLE stock (produit_id INTEGER REFERENCES produit(id) ON DELETE CASCADE, taille_id INTEGER REFERENCES taille(id), quantite INTEGER CHECK(quantite >= 0), PRIMARY KEY(produit_id, taille_id));
 CREATE TABLE image_produit (produit_id INTEGER REFERENCES produit(id) ON DELETE CASCADE, ordre INTEGER, fichier TEXT, PRIMARY KEY(produit_id, ordre));
 CREATE TABLE commande (id INTEGER PRIMARY KEY AUTOINCREMENT, utilisateur_id INTEGER REFERENCES utilisateur(id), numero TEXT UNIQUE, total NUMERIC, statut TEXT DEFAULT 'en_cours');
+CREATE TABLE mouvement_stock (id INTEGER PRIMARY KEY AUTOINCREMENT, produit_id INTEGER NOT NULL, taille_id INTEGER NOT NULL, commande_id INTEGER NOT NULL, type TEXT NOT NULL, quantite INTEGER NOT NULL, date_mouvement TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE ligne_commande (id INTEGER PRIMARY KEY AUTOINCREMENT, commande_id INTEGER REFERENCES commande(id), produit_id INTEGER REFERENCES produit(id) ON DELETE RESTRICT,
  taille_id INTEGER REFERENCES taille(id), nom_produit TEXT, quantite INTEGER, prix_unitaire NUMERIC, flocage_nom TEXT, flocage_numero INTEGER, prix_flocage NUMERIC);
 INSERT INTO categorie VALUES (1, 'Maillots', 'maillots', 'Maillots officiels', 1), (2, 'Supporters', 'supporters', 'Accessoires', 2);

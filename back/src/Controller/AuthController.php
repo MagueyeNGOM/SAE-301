@@ -154,6 +154,18 @@ final class AuthController
         Response::json($commande);
     }
 
+    /** Lignes d'une ancienne commande avec leur disponibilité actuelle (SUI-A) : 404 si elle n'est pas la sienne. */
+    public function reorder(Request $requete): void
+    {
+        $id     = $this->clientConnecte();
+        $lignes = $this->commandes->reorderLines($id, (string) $requete->parametre('numero', ''));
+        if ($lignes === null) {
+            Response::erreur('Commande introuvable.', 404);
+        }
+
+        Response::json(['lignes' => $lignes]);
+    }
+
     /**
      * Modifie nom, email et, si « nouveau » est rempli, le mot de passe.
      * Le mot de passe actuel est alors exigé : une session volée ne suffit pas

@@ -1,5 +1,9 @@
+import { AuthData } from "../data/auth.js";
+import { CartData } from "../data/cart.js";
+import { MessageView } from "../ui/message/index.js";
+
 /**
- * Affichage commun des commandes de l'espace personnel (SUI-B, SUI-C).
+ * Affichage commun des commandes de l'espace personnel (SUI-B, SUI-C) et « Commander à nouveau » (SUI-A).
  */
 
 // Avancement d'une commande : nombre d'étapes franchies sur 3.
@@ -21,6 +25,35 @@ export function formaterDate(valeur) {
 
 export function libelleStatut(statut) {
   return statut.charAt(0).toUpperCase() + statut.slice(1);
+}
+
+// Commander à nouveau (SUI-A) : transfère la commande dans le panier et renvoie les messages
+// à afficher, [{ type, texte }]. Une erreur d'API (session expirée, commande introuvable) remonte.
+export async function recommander(numero) {
+  let { lignes } = await AuthData.recommander(numero);
+  let { ajoutees, messages } = CartData.ajouterCommande(lignes);
+  let resultat = messages.map((texte) => ({ type: "erreur", texte }));
+  if (ajoutees > 0) {
+    resultat.unshift({ type: "succes", texte: `${ajoutees} article${ajoutees > 1 ? "s ont été ajoutés" : " a été ajouté"} à votre panier. Les prix et les stocks affichés sont ceux d'aujourd'hui.` });
+  } else {
+    resultat.unshift({ type: "erreur", texte: "Aucun article n'a pu être ajouté à votre panier." });
+  }
+  return resultat;
+}
+
+// Messages de « Commander à nouveau », suivis d'un lien vers le panier si des articles y sont entrés.
+export function messagesDom(messages) {
+  let fragment = document.createDocumentFragment();
+  for (let m of messages) fragment.append(MessageView.dom(m));
+  if (messages[0]?.type === "succes") {
+    let lien = document.createElement("a");
+    lien.href = "/panier";
+    lien.dataset.link = "";
+    lien.className = "w-fit text-[13px] font-semibold text-om-bleu hover:underline";
+    lien.textContent = "Voir mon panier ›";
+    fragment.append(lien);
+  }
+  return fragment;
 }
 
 // Trois petites barres de progression (maquette P2-07).

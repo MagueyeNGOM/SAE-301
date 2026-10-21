@@ -298,6 +298,84 @@ final class OrderModel
     }
 
     /**
+     * Lignes d'une commande du client (SUI-A) confrontées au catalogue d'aujourd'hui, ou null si la
+     * commande n'existe pas ou appartient à un autre. Nom, prix, flocage et stock sont ceux d'aujourd'hui,
+     * jamais ceux de la commande ; taille et flocage choisis à l'époque sont conservés.
+     * Chaque ligne a un statut : « ok », « ajustee » (quantité ramenée au stock) ou « indisponible ».
+     */
+    public function reorderLines(int $utilisateurId, string $numero): ?array
+    {
+        $requete = $this->pdo->prepare('SELECT id FROM commande WHERE numero = :numero AND utilisateur_id = :utilisateur');
+        $requete->execute(['numero' => $numero, 'utilisateur' => $utilisateurId]);
+        $commandeId = $requete->fetchColumn();
+        if ($commandeId === false) {
+            return null;
+        }
+
+        $lignes = $this->pdo->prepare(
+            'SELECT l.quantite, l.taille_id, l.nom_produit, l.flocage_nom, l.flocage_numero,
+                    p.slug, p.nom, p.prix, p.prix_flocage, p.image, t.libelle, s.quantite AS stock
+             FROM ligne_commande l
+             LEFT JOIN produit p ON p.id = l.produit_id
+             LEFT JOIN taille t ON t.id = l.taille_id
+             LEFT JOIN stock s ON s.produit_id = l.produit_id AND s.taille_id = l.taille_id
+             WHERE l.commande_id = :id ORDER BY l.id'
+        );
+        $lignes->execute(['id' => $commandeId]);
+
+        $restant = []; // stock restant par produit et taille, partagé entre les lignes (flocages différents)
+        $resultat = [];
+        foreach ($lignes->fetchAll() as $l) {
+            $quantite = (int) $l['quantite'];
+            $nom      = $l['nom'] ?? $l['nom_produit'];
+            $ligne    = ['statut' => 'ok', 'message' => '', 'nom' => $nom, 'quantite' => $quantite];
+            $raison   = null;
+
+            if ($l['slug'] === null) {
+                $raison = 'n\'est plus au catalogue';
+            } elseif ($l['flocage_nom'] !== null && $l['prix_flocage'] === null) {
+                $raison = 'ne se floque plus';
+            } elseif ($l['taille_id'] !== null && ($l['stock'] === null || (int) $l['stock'] <= 0)) {
+                $raison = $l['stock'] === null ? 'n\'existe plus dans la taille ' . $l['libelle'] : 'est épuisé en taille ' . $l['libelle'];
+            }
+
+            if ($raison === null && $l['taille_id'] !== null) {
+                $cle = $l['slug'] . '|' . $l['taille_id'];
+                $restant[$cle] ??= (int) $l['stock'];
+                $accorde = min($quantite, $restant[$cle]);
+                if ($accorde < 1) {
+                    $raison = 'est épuisé en taille ' . $l['libelle'] . ' (stock déjà attribué à une autre ligne)';
+                } else {
+                    $restant[$cle] -= $accorde;
+                    if ($accorde < $quantite) {
+                        $ligne['statut']   = 'ajustee';
+                        $ligne['message']  = '« ' . $nom . ' » (taille ' . $l['libelle'] . ') : il ne reste que ' . $accorde . ' exemplaire' . ($accorde > 1 ? 's' : '') . ', la quantité a été ajustée.';
+                        $ligne['quantite'] = $accorde;
+                    }
+                }
+            }
+
+            if ($raison !== null) {
+                $ligne['statut']  = 'indisponible';
+                $ligne['message'] = '« ' . $nom . ' » ' . $raison . ' : il n\'a pas été ajouté.';
+                $resultat[] = $ligne;
+                continue;
+            }
+
+            $resultat[] = $ligne + [
+                'slug'        => $l['slug'],
+                'prix'        => (float) $l['prix'],
+                'prixFlocage' => $l['prix_flocage'] === null ? 0.0 : (float) $l['prix_flocage'],
+                'image'       => $l['image'],
+                'taille'      => $l['taille_id'] === null ? null : ['id' => (int) $l['taille_id'], 'libelle' => $l['libelle'], 'stock' => (int) $l['stock']],
+                'flocage'     => $l['flocage_nom'] === null ? null : ['nom' => $l['flocage_nom'], 'numero' => (int) $l['flocage_numero']],
+            ];
+        }
+
+        return $resultat;
+    }
+
+    /**
      * Passe la commande de $ancien à $nouveau et l'inscrit au journal.
      * L'annulation remet en stock, par taille, ce que la commande avait retiré.
      *

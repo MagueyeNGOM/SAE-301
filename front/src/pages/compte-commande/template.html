@@ -8,6 +8,7 @@
 
   <div data-role="contenu" class="flex flex-col gap-5 px-4 py-6 md:flex-row md:items-start md:px-10 md:py-7">
     <div class="flex flex-col gap-3.5 md:flex-1">
+      <slot name="message"></slot>
       <ol data-role="suivi" aria-label="Avancement de la commande" class="flex items-start justify-center rounded-[14px] bg-om-fond p-6"></ol>
       <p data-role="annulee" hidden class="rounded-[14px] bg-om-erreur-fond p-4 text-[13px] font-semibold text-om-erreur">Cette commande a été annulée.</p>
       <ul data-role="lignes" class="flex flex-col gap-3.5"></ul>
@@ -20,6 +21,7 @@
         <p data-role="retrait" hidden class="flex items-center justify-between text-[13px] text-om-texte-doux">Retirée le <span data-role="date-retrait"></span></p>
         <p class="flex items-center justify-between text-sm font-semibold text-om-texte">Total <span data-role="total" class="text-xl"></span></p>
       </section>
+      <button type="button" data-role="recommander" class="rounded-lg bg-om-bleu px-6 py-3 text-center text-[13px] font-semibold text-white transition-colors hover:opacity-90">Commander à nouveau</button>
       <a href="/compte/commandes" data-link class="rounded-lg bg-om-fond-doux px-6 py-3 text-center text-[13px] font-semibold text-om-bleu transition-colors hover:bg-white">Retour aux commandes</a>
     </aside>
   </div>
