@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "images:optimize": "node scripts/optimize-images.mjs",
+    "build": "npm run images:optimize && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.4"
   }

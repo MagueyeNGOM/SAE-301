@@ -82,7 +82,8 @@ final class OrderController
         }
 
         $lignes  = [];
-        $reserve = []; // quantité demandée par taille (id de variante)
+        $confirmation = [];
+        $reserve = []; // quantité demandée par produit et taille
         $total   = 0.0;
         foreach ($demandes as $demande) {
             $produit = $this->produits->trouver($demande['slug']);
@@ -114,9 +115,10 @@ final class OrderController
                 Response::erreur('La taille ' . $taille['libelle'] . ' de « ' . $produit['nom'] . ' » est épuisée.', 422);
             }
 
-            // STK-C : le stock se partage entre les lignes d'une même taille (flocages différents).
-            $reserve[$tailleId] = ($reserve[$tailleId] ?? 0) + $demande['quantite'];
-            if ($reserve[$tailleId] > $taille['quantite']) {
+            // STK-C : les flocages d'un même produit et d'une même taille partagent le stock.
+            $cleReserve = $produit['id'] . '|' . $tailleId;
+            $reserve[$cleReserve] = ($reserve[$cleReserve] ?? 0) + $demande['quantite'];
+            if ($reserve[$cleReserve] > $taille['quantite']) {
                 Response::erreur(
                     'Il ne reste que ' . $taille['quantite'] . ' exemplaire' . ($taille['quantite'] > 1 ? 's' : '')
                     . ' de la taille ' . $taille['libelle'] . ' de « ' . $produit['nom'] . ' ». Ajustez votre panier.',
@@ -145,9 +147,24 @@ final class OrderController
                 'prix_flocage'   => $prixFlocage,
             ];
             $total += ($produit['prix'] + $prixFlocage) * $demande['quantite'];
+            $confirmation[] = [
+                'slug' => $produit['slug'], 'nom' => $produit['nom'], 'prix' => $produit['prix'], 'image' => $produit['image'],
+                'quantite' => $demande['quantite'], 'taille' => ['id' => $tailleId, 'libelle' => $taille['libelle']],
+                'flocage' => $flocage, 'prixFlocage' => $prixFlocage,
+            ];
         }
 
         $total  = round($total, 2);
+        if ($total > 999999.99) {
+            Response::erreur('Le montant maximal d’une commande est de 999 999,99 €. Réduisez votre panier.', 422);
+        }
+        $expected = $requete->corps()['totalAttendu'] ?? null;
+        if ($expected !== null && ((!is_int($expected) && !is_float($expected)) || !is_finite((float) $expected))) {
+            Response::erreur('Le montant du récapitulatif est invalide.', 422);
+        }
+        if ($expected !== null && round($expected * 100) !== round($total * 100)) {
+            Response::erreur('Les prix ont changé. Vérifiez le nouveau récapitulatif avant de confirmer.', 409);
+        }
         try {
             $numero = $this->commandes->creer((int) $_SESSION['utilisateur'], $lignes, $total);
         } catch (DomainException $e) {
@@ -155,6 +172,6 @@ final class OrderController
             Response::erreur($e->getMessage(), 409);
         }
 
-        Response::json(['commande' => ['numero' => $numero, 'total' => $total, 'articles' => count($lignes)]], 201);
+        Response::json(['commande' => ['numero' => $numero, 'total' => $total, 'articles' => count($lignes), 'lignes' => $confirmation]], 201);
     }
 }

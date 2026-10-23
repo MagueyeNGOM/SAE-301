@@ -59,3 +59,7 @@ du code actuel. Actualiser la référence concernée après un changement valid�
   compte admin fonctionnel pour les besoins d'un test.
 - Pour un changement d'interface, vérifier les états d'erreur, les accès directs,
   le responsive, Figma, le HTML rendu et les navigateurs requis par la DoD.
+
+## Correctifs du 22/10/2026
+
+Révisions des stocks, prix, variantes, catalogue et optimisations : [référence partagée](references/corrections-audit-2026-10-22.md).
