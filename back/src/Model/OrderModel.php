@@ -43,6 +43,22 @@ final class OrderModel
         $this->pdo->beginTransaction();
 
         try {
+            // Verrouiller dans un ordre stable, avant les stocks et toute insertion.
+            $ids = array_unique(array_column($lignes, 'produit_id'));
+            sort($ids, SORT_NUMERIC);
+            $lock = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' ? ' FOR UPDATE' : '';
+            $query = $this->pdo->prepare('SELECT prix, prix_flocage FROM produit WHERE id = :id' . $lock);
+            foreach ($ids as $productId) {
+                $query->execute(['id' => $productId]);
+                $current = $query->fetch();
+                foreach ($lignes as $l) {
+                    if ($l['produit_id'] != $productId) continue;
+                    if (!$current || round((float) $current['prix'] * 100) !== round($l['prix'] * 100)
+                        || ($l['flocage_nom'] !== null && ($current['prix_flocage'] === null || round((float) $current['prix_flocage'] * 100) !== round($l['prix_flocage'] * 100)))) {
+                        throw new DomainException('Les prix ont changé. Vérifiez le nouveau récapitulatif avant de confirmer.');
+                    }
+                }
+            }
             // Numéro provisoire aléatoire (la colonne est unique et obligatoire) :
             // le vrai numéro dérive de l'id, que MySQL n'attribue qu'à l'insertion.
             $commande = $this->pdo->prepare(
@@ -404,15 +420,13 @@ final class OrderModel
                      WHERE l.commande_id = :id AND c.stock_decremente = 1 AND l.taille_id IS NOT NULL'
                 );
                 $lignes->execute(['id' => $id]);
-                $remise = $this->pdo->prepare(
-                    'UPDATE stock SET quantite = quantite + :q WHERE produit_id = :produit AND taille_id = :taille'
-                );
+                $mysql = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql';
+                $remise = $this->pdo->prepare('INSERT INTO stock (produit_id, taille_id, quantite) VALUES (:produit, :taille, :q) '
+                    . ($mysql ? 'ON DUPLICATE KEY UPDATE quantite = quantite + VALUES(quantite)' : 'ON CONFLICT(produit_id, taille_id) DO UPDATE SET quantite = quantite + excluded.quantite'));
                 foreach ($lignes->fetchAll() as $l) {
                     $remise->execute(['q' => $l['quantite'], 'produit' => $l['produit_id'], 'taille' => $l['taille_id']]);
-                    // Taille supprimée depuis la commande : rien n'est remis, rien n'est journalisé.
-                    if ($remise->rowCount() > 0) {
-                        $this->journaliserStock((int) $l['produit_id'], (int) $l['taille_id'], $id, 'annulation', (int) $l['quantite']);
-                    }
+                    // Répare aussi une taille retirée avant la protection des commandes actives.
+                    $this->journaliserStock((int) $l['produit_id'], (int) $l['taille_id'], $id, 'annulation', (int) $l['quantite']);
                 }
             }
 

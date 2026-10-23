@@ -50,3 +50,6 @@ Tester au minimum :
 - Un changement d'option.
 - Le calcul des prix.
 - La conservation des options à la commande.
+## Correctifs du 22/10/2026
+
+Révisions des stocks, prix, variantes, catalogue et optimisations : [référence partagée](../back-office/references/corrections-audit-2026-10-22.md).

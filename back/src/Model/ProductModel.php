@@ -62,9 +62,9 @@ final class ProductModel
     }
 
     /**
-     * Les produits du catalogue, avec le nom de leur catégorie.
+     * Les produits du catalogue, avec leurs tailles et le nom de leur catégorie.
      * Si $categorie (slug) est donné, seuls ceux de cette catégorie.
-     * Seuls les champs utiles à la carte produit sont renvoyés.
+     * Les tailles alimentent les puces de disponibilité sur les cartes.
      */
     public function lister(?string $categorie = null): array
     {
@@ -94,8 +94,39 @@ final class ProductModel
             $produit['prix']      = (float) $produit['prix'];
             $produit['nouveaute'] = (bool) $produit['nouveaute'];
             $produit['stock']     = $this->etatStock((int) $produit['quantite_stock'], isset($produit['seuil_stock']) ? (int) $produit['seuil_stock'] : null);
+            $produit['tailles']   = [];
             unset($produit['quantite_stock'], $produit['seuil_stock']);
         }
+        unset($produit);
+
+        if ($produits === []) {
+            return $produits;
+        }
+
+        $ids = array_column($produits, 'id');
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $requeteTailles = $this->pdo->prepare(
+            'SELECT stock.produit_id, taille.id, taille.libelle, stock.quantite
+               FROM stock
+         INNER JOIN taille ON taille.id = stock.taille_id
+              WHERE stock.produit_id IN (' . $placeholders . ')
+           ORDER BY stock.produit_id, taille.ordre'
+        );
+        $requeteTailles->execute($ids);
+        $taillesParProduit = [];
+        foreach ($requeteTailles->fetchAll() as $taille) {
+            $produitId = (int) $taille['produit_id'];
+            $taillesParProduit[$produitId][] = [
+                'id' => (int) $taille['id'],
+                'libelle' => $taille['libelle'],
+                'quantite' => (int) $taille['quantite'],
+            ];
+        }
+
+        foreach ($produits as &$produit) {
+            $produit['tailles'] = $taillesParProduit[$produit['id']] ?? [];
+        }
+        unset($produit);
 
         return $produits;
     }
@@ -116,7 +147,8 @@ final class ProductModel
                     produit.image,
                     produit.nouveaute,
                     produit.seuil_stock,
-                    categorie.nom AS categorie
+                    categorie.nom AS categorie,
+                    categorie.slug AS categorieSlug
                FROM produit
          INNER JOIN categorie ON categorie.id = produit.categorie_id
               WHERE produit.slug = :slug'
@@ -227,7 +259,7 @@ final class ProductModel
         $row['prix_flocage'] = $row['prix_flocage'] === null ? null : (float) $row['prix_flocage'];
         $row['nouveaute'] = (bool) $row['nouveaute'];
         $row['seuil_stock'] = $row['seuil_stock'] === null ? $this->seuilStock : (int) $row['seuil_stock'];
-        $query = $this->pdo->prepare('SELECT taille_id, quantite FROM stock WHERE produit_id = :id');
+        $query = $this->pdo->prepare('SELECT taille_id, quantite FROM stock WHERE produit_id = :id ORDER BY taille_id');
         $query->execute(['id' => $id]);
         $row['variants'] = array_map(static fn(array $variant): array => [
             'taille_id' => (int) $variant['taille_id'], 'quantite' => (int) $variant['quantite'],
@@ -236,6 +268,7 @@ final class ProductModel
         $query->execute(['id' => $id]);
         $row['images'] = $query->fetchAll(PDO::FETCH_COLUMN);
         if ($row['images'] === []) $row['images'] = [$row['image']];
+        $row['revision'] = hash('sha256', json_encode($row, JSON_THROW_ON_ERROR));
         return $row;
     }
 
@@ -244,6 +277,28 @@ final class ProductModel
         $this->pdo->beginTransaction();
         try {
             $id = $product['id'];
+            if ($id) {
+                // Même verrou que la commande : un ancien formulaire ne peut pas effacer une vente.
+                $lock = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' ? ' FOR UPDATE' : '';
+                $query = $this->pdo->prepare('SELECT id FROM produit WHERE id = :id' . $lock);
+                $query->execute(['id' => $id]);
+                $query = $this->pdo->prepare('SELECT taille_id FROM stock WHERE produit_id = :id ORDER BY taille_id' . $lock);
+                $query->execute(['id' => $id]);
+                $query->fetchAll();
+                $current = $this->adminFind($id);
+                if (!$current || !hash_equals($current['revision'], $product['revision'] ?? '')) {
+                    throw new \DomainException('Ce produit ou son stock a changé. Fermez le formulaire et rouvrez-le avant de modifier le produit.');
+                }
+                $kept = array_column($product['variants'], 'taille_id');
+                $query = $this->pdo->prepare("SELECT DISTINCT l.taille_id FROM ligne_commande l JOIN commande c ON c.id = l.commande_id
+                    WHERE l.produit_id = :id AND c.stock_decremente = 1 AND c.statut IN ('en cours', 'disponible') AND l.taille_id IS NOT NULL");
+                $query->execute(['id' => $id]);
+                foreach ($query->fetchAll(PDO::FETCH_COLUMN) as $size) {
+                    if (!in_array((int) $size, $kept, true)) {
+                        throw new \DomainException('Cette taille figure dans une commande en cours ou disponible : elle ne peut pas être retirée.');
+                    }
+                }
+            }
             $values = array_intersect_key($product, array_flip(['nom', 'description', 'details', 'prix', 'categorie_id', 'prix_flocage', 'nouveaute', 'seuil_stock']));
             $values['nouveaute'] = (int) $values['nouveaute'];
             $values['image'] = $images[0];

@@ -222,7 +222,7 @@ final class AuthController
      */
     private function clientConnecte(): int
     {
-        if (!isset($_SESSION['utilisateur']) || ($_SESSION['role'] ?? '') !== 'client') {
+        if (!isset($_SESSION['utilisateur']) || !in_array($_SESSION['role'] ?? '', ['client', 'admin'], true)) {
             Response::erreur('Connectez-vous pour accéder à votre espace.', 401);
         }
 

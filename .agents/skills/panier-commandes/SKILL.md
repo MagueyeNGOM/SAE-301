@@ -98,11 +98,25 @@ Ces fonctionnalités sont déclarées implémentées.
   flocage retiré). Aucune migration.
 - Les articles s'ajoutent au panier existant (quantité cumulée, plafonnée au stock et à 99) ;
   si rien n'est ajouté, le panier est inchangé. Le stock réel reste revérifié par STK-C au panier et à la commande.
+- Titre d'onglet : option `title` de `router.addRoute` (`main.js`), complétée par « | Boutique OM » ;
+  la fiche produit gère le sien. Une ligne de commande de liste = composant `ui/ligne-commande`
+  (bouton « Commander à nouveau » seulement si `surRecommander` est fourni) ; le détail a `ligne.html`.
+- Tailwind : aucun crochet dans les classes (ni `[13px]`, ni `aria-[…]`, ni `[&_h2]`) : variantes maison
+  (`page-courante:`, `lignes-impaires:`, `h2-interne:`…) et utilitaires (`font-heritee`, `colonnes-produit`) définis en bas de `global.css`.
+- Tailwind : aucune valeur en dur dans les classes. Tailles de texte `text-om-*`, rayons `rounded-om-*`,
+  dimensions `*-om-<px>` et `max-w-om-*` sont définis dans `@theme` de `global.css` ; blanc = `om-surface` (fond)
+  et `om-sur-principal` (texte sur bleu). Pour une nouvelle valeur, l'ajouter dans `@theme` plutôt qu'en `[13px]`.
+  Mobile d'abord (aucune variante `max-*`). Vérifié le 21/10/2026 : build OK, toutes les classes présentes dans le CSS généré.
+- Aucun HTML dans le JavaScript : tout est dans des `.html` (starter). Composants de l'espace personnel :
+  `ui/suivi-commande`, `ui/puce-filtre`, `ui/resultat-recommander`, `ui/ligne-commande` (barres). Seules exceptions :
+  le lien de téléchargement du CSV (admin/stats) et la balise `<meta>` de la fiche produit, qui ne sont pas de l'interface.
 - Test : `PHP_BIN=C:/xampp/php/php.exe node tests/sui-a.mjs`.
 - 21/10/2026, local : sui-a 11/11 ; régressions sui-b 24, sui-c 22, gof-b 38, gof-c 47, pil-a 9 OK ;
   build front OK ; Chromium du volet intégré, API simulée (liste et détail, desktop et mobile 375 px,
   sans débordement ni erreur console). Non fait : W3C (pas de validateur Nu disponible), Edge/Firefox,
-  essai sur la vraie pile MariaDB et sur le serveur cible, comparaison Figma (pas de maquette dédiée).
+  essai sur le serveur cible, comparaison Figma (pas de maquette dédiée).
+- 21/10/2026, W3C : validateur Nu (vnu-jar) sur 23 pages rendues, vraie pile MariaDB + PHP + front construit
+  (boutique, compte, admin) : 0 erreur, 0 avertissement. CSS non revalidé (Tailwind v4 : erreurs connues).
 
 ## Vérifications
 
@@ -111,3 +125,6 @@ Ces fonctionnalités sont déclarées implémentées.
 - Tester les accès non authentifiés.
 - Tester la commande complète.
 - Vérifier les données enregistrées.
+## Correctifs du 22/10/2026
+
+Révisions des stocks, prix, variantes, catalogue et optimisations : [référence partagée](../back-office/references/corrections-audit-2026-10-22.md).

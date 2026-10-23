@@ -14,6 +14,7 @@ Ces fonctionnalités sont déclarées implémentées.
 - Conserver au minimum 3 catégories.
 - Conserver au minimum 4 produits par catégorie.
 - Afficher nom, prix et image des produits.
+- La liste du catalogue inclut les variantes et leurs quantités pour montrer les tailles disponibles.
 - Conserver les pages détail produit.
 - Conserver les galeries d'images.
 - Conserver le filtrage par catégorie.
@@ -38,3 +39,7 @@ Ces fonctionnalités sont déclarées implémentées.
 - Fiches produit accessibles.
 - Images et prix affichés correctement.
 - Navigation cohérente.
+
+## Correctifs du 22/10/2026
+
+Révisions des stocks, prix, variantes, catalogue et optimisations : [référence partagée](../back-office/references/corrections-audit-2026-10-22.md).

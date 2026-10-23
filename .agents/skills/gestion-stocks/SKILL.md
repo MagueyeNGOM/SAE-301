@@ -41,6 +41,9 @@ et serveur cible restent à confirmer.
 
 - `OrderModel::creer` retire le stock par taille et `changerStatut('annulée')` le remet,
   chacun dans sa transaction (début fait avec PIL-B, voir `../back-office/references/pil-b.md`).
+- Sur une base existante, appliquer aussi `sql/migrations/pil-b-order-stock-flag.sql`
+  avant le back courant : elle ajoute `commande.stock_decremente`, nécessaire à
+  la création et à l'annulation des commandes.
 - Journal : table `mouvement_stock` (migration `sql/migrations/stk-a-stock-movement.sql`,
   à lancer avant de déployer le back, sinon toute commande échoue). Une ligne par taille :
   `commande` (quantité négative) ou `annulation` (positive). Pas d'historique avant la migration.
@@ -67,3 +70,7 @@ Tester :
 - Changement de disponibilité.
 - Variante épuisée.
 - Refus d'une quantité invalide côté serveur.
+
+## Correctifs du 22/10/2026
+
+Révisions des stocks, prix, variantes, catalogue et optimisations : [référence partagée](../back-office/references/corrections-audit-2026-10-22.md).

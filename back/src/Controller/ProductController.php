@@ -41,6 +41,9 @@ final class ProductController
         if ($id && !$old) Response::erreur('Produit introuvable.', 404);
         $created = [];
         try {
+            if ($id && (!is_string($body['revision'] ?? null) || !preg_match('/^[a-f0-9]{64}$/', $body['revision']))) {
+                throw new \DomainException('Rechargez le formulaire avant de modifier ce produit.');
+            }
             $name = $this->text($body['nom'] ?? null, 120, 'nom', true);
             $description = $this->text($body['description'] ?? null, 20000, 'description');
             $details = $this->text($body['details'] ?? '', 20000, 'détails', false, false);
@@ -77,10 +80,11 @@ final class ProductController
             $savedId = $this->products->save([
                 'id' => $id, 'nom' => $name, 'description' => $description, 'details' => $details, 'categorie_id' => $category,
                 'prix' => $price, 'prix_flocage' => $printing, 'nouveaute' => $body['nouveaute'], 'seuil_stock' => $threshold,
-                'variants' => $variants, 'slug' => $slug ?: 'produit-' . bin2hex(random_bytes(6)),
+                'variants' => $variants, 'revision' => $body['revision'] ?? null, 'slug' => $slug ?: 'produit-' . bin2hex(random_bytes(6)),
             ], $files);
         } catch (\Throwable $error) {
             $this->images->discard($created);
+            if ($error instanceof \DomainException) Response::erreur($error->getMessage(), 409);
             if ($error instanceof InvalidArgumentException) Response::erreur($error->getMessage(), 422);
             if ($error instanceof PDOException && $error->getCode() === '23000') Response::erreur('Adresse de produit déjà utilisée ou catégorie devenue indisponible. Rechargez puis vérifiez la saisie.', 409);
             if ($error instanceof RuntimeException && !$error instanceof PDOException) Response::erreur($error->getMessage(), 503);
