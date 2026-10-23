@@ -1,175 +1,68 @@
-# SAE301-Starter
+# Analyse des user stories — Boutique OM
 
-Catalogue de films : une API PHP en trois couches (routage / contrôleur /
-modèle) au-dessus de MySQL, et un front en JavaScript organisé en layouts,
-pages et composants, avec un routeur côté client.
+## Maquettes et graphe
 
-- préférences de tri et de pagination mémorisées dans des cookies ;
-- connexion par session, page Administration réservée au rôle `admin` ;
-- thème clair / sombre en `localStorage`.
+- [Maquettes de la boutique — Figma](https://www.figma.com/design/3lUWqwCcXggFXDevx5eaQV/NGOM-Magueye---Boutique-OM?node-id=0-1&p=f&t=il6UBp4wDulwUzjB-0)
+- [Graphe des dépendances — FigJam](https://www.figma.com/board/FTibXWFBqaQtwCkbnwJ6Za/NGOM-Magueye---Graphe?node-id=0-1&p=f&t=erl61JQQOxxorPru-0)
 
-## Arborescence
+## Dépendances entre les user stories
 
-```
-.htaccess            /api/... vers le back, tout le reste vers front/dist/
-sql/import.sql       tables film et genre, à importer dans votre base
-back/                API PHP, ne renvoie que du JSON
-├── index.php        point d'entrée : assemble les dépendances, délègue
-├── config/          identifiants de la base, chemin du projet
-└── src/             Core/ (Request, Response, Router, Database),
-                     Controller/, Model/, routes.php
-front/               sources du front (Vite + Tailwind)
-├── index.html       page unique de l'application
-├── vite.config.js   chemin du projet, proxy de développement
-├── src/
-│   ├── main.js      déclaration des routes et des layouts
-│   ├── global.css   Tailwind, thème sombre
-│   ├── layouts/     structures de page (en-tête + slot de la page)
-│   ├── pages/       une page par route : page.js + template.html
-│   ├── ui/          composants réutilisables : index.js + template.html
-│   ├── data/        appels à l'API, un module par ressource
-│   └── lib/         routeur, rendu des templates, requêtes, utilitaires
-└── dist/            résultat de npm run build (non versionné)
-```
-
-## Installation
-
-1. Importez `sql/import.sql` dans votre base depuis phpMyAdmin (il crée les
-   tables `film` et `genre` ; une table existante de même nom serait
-   remplacée).
-2. Dans `back/config/config.php`, renseignez les identifiants de la base et
-   le chemin du projet (`/~votre_login/Base/`).
-3. Dans `front/vite.config.js`, donnez à `BASE` **exactement** le même chemin.
-4. Dans `front/`, installez les dépendances :
-
-```bash
-npm install
-```
-
-Le chemin du projet apparaît donc à deux endroits, et seulement là :
-`config.php` pour le back (chemin des cookies), `vite.config.js` pour le front
-(adresses des fichiers et des pages).
-
-## Développer
-
-```bash
-npm run dev
-```
-
-Le front est servi par Vite à `http://localhost:5173/~votre_login/Base/`, avec
-rechargement à chaque modification. Les requêtes `/~votre_login/Base/api/...`
-sont relayées par Vite vers l'API déployée sur `mmi.unilim.fr` : le back doit
-donc être en place sur le serveur (voir Déployer).
-
-Ce relais (le proxy de `vite.config.js`) fait croire au navigateur que front
-et API sont sur le même site, sous le même chemin qu'en production. Les
-cookies posés par l'API (préférences, session) sont donc acceptés et renvoyés
-normalement. Sans lui, le front sur `localhost` appellerait directement
-`mmi.unilim.fr` : deux sites différents, et le navigateur refuserait d'envoyer
-les cookies.
-
-Utilisez Chrome ou Firefox : les cookies de l'API sont `Secure`, et Safari
-peut les refuser sur `http://localhost`.
-
-## Déployer
-
-```bash
-npm run build
-```
-
-Le front compilé est produit dans `front/dist/`. Déposez ensuite dans votre
-espace web, dans le dossier `Base/` : `.htaccess`, `back/` et `front/dist/`
-(en gardant ce chemin). Inutile de déposer `front/node_modules/`.
-
-L'application est alors à `https://mmi.unilim.fr/~votre_login/Base/`. Le
-`.htaccess` sert les fichiers de `front/dist/`, et répond par
-`front/dist/index.html` à toute autre adresse (`/admin`…) : c'est le routeur
-du front qui affiche la bonne page, ou la page 404.
-
-## Architecture du front
-
-### Routeur (`lib/router.js`)
-
-Déclaré dans `main.js`, sur le modèle de `react-router` :
-
-```js
-router.addLayout("/", RootLayout);
-router.addRoute("/", CataloguePage);
-router.addRoute("/admin", AdminPage);
-router.addRoute("/films/:id", FilmPage);   // params.id dans la page
-router.addRoute("*", The404Page);          // toujours en dernier
-```
-
-- Un lien interne porte `data-link` et un chemin de route, sans le chemin du
-  projet : `<a href="/admin" data-link>`. Le routeur intercepte le clic,
-  change l'adresse sans recharger, et complète lui-même le `href` avec le
-  chemin du projet (comme `basename` dans `react-router`).
-- Le lien de la page affichée reçoit `aria-current="page"`, que Tailwind
-  cible avec `aria-[current=page]:…`.
-- Une page renvoie une chaîne HTML (page statique) ou un fragment, ou une
-  promesse de l'un des deux (page qui charge des données).
-- Le layout est choisi par le plus long préfixe d'adresse. La page prend la
-  place de son `<slot>` sans nom.
-
-### Composants (`ui/`)
-
-Un dossier par composant : le HTML et les classes Tailwind dans
-`template.html`, le JavaScript dans `index.js`. Le composant expose
-`html(data)` (chaîne) et/ou `dom(data, actions)` (fragment).
-
-- `{{cle}}` dans un template est remplacé par la valeur correspondante,
-  **échappée** : un placeholder ne produit jamais que du texte. Pour insérer
-  un autre composant, on utilise un `<slot name="…">`, que le JavaScript
-  remplace (`slot.replaceWith(Composant.dom(…))`).
-- Un template n'a ni boucle ni condition : une liste se construit avec un
-  template par élément (`ui/statistiques/ligne-genre.html`), et un état
-  (option choisie, bouton désactivé) se règle en JavaScript après
-  `htmlToFragment`.
-- Un composant ne décide de rien : il reçoit ses données, et signale les
-  actions de l'utilisateur par les fonctions de `actions`
-  (`surTri`, `surPage`…), comme les props `onChange` de React.
-- Tailwind ne génère que les classes écrites en entier dans le code :
-  `"text-red-700"`, jamais `"text-" + couleur`.
-
-### Pages (`pages/`)
-
-Une page dynamique suit le découpage Modèle / Contrôleur / Vue :
-
-- `M` contient l'état de la page (réponse de l'API, message affiché…) ;
-- `C` contient les traitements : chargement des données, réactions aux
-  actions de l'utilisateur ;
-- `V` construit la page à partir de `M`. Après chaque changement, toute la
-  page est reconstruite et remplace l'ancienne (`V.rafraichir()`) :
-  l'affichage se déduit de l'état, on ne le retouche pas morceau par morceau.
-
-## L'API
-
-| Route | Effet |
-|---|---|
-| `GET /api/films?page=2&tri=note&parPage=24` | une page du catalogue |
-| `POST /api/login` | connexion, corps JSON `{"login": …, "mdp": …}` |
-| `POST /api/logout` | déconnexion |
-| `GET /api/admin/stats` | statistiques, réservées au rôle `admin` |
-
-Tris acceptés : `titre`, `annee`, `note`. Valeurs de `parPage` : `12`, `24`,
-`48`. `tri` et `parPage` sont facultatifs : sans eux, le serveur applique les
-préférences mémorisées dans les cookies. La réponse rappelle les réglages
-appliqués (`tri`, `parPage`, `page`, `pagesTotal`, `total`) : le front n'a
-jamais besoin de lire les cookies, qui sont en `HttpOnly`.
-
-## Comptes
-
-| Login | Mot de passe | Rôle |
+| User story | Dépend de | Justification |
 |---|---|---|
-| `alice` | `azerty` | `user` |
-| `admin` | `motdepasse` | `admin` |
+| DEC-B — Catalogue | Aucune | Les produits doivent exister avant d’être affichés. |
+| DEC-A — Catégories | DEC-B | Les catégories filtrent les produits du catalogue. |
+| DEC-C — Détail produit | DEC-B | La fiche s’ouvre depuis un produit du catalogue. |
+| CMD-C — Authentification | Aucune | Les comptes clients sont indépendants du catalogue. |
+| CMD-B — Panier | DEC-B ; DEC-C pour l’ajout depuis une fiche | Le panier doit pouvoir recevoir des produits. |
+| CMD-A — Validation de commande | CMD-B, CMD-C | Il faut un panier et un client connecté. |
+| STK-B — Affichage des stocks | DEC-B | Le stock est affiché avec les produits. |
+| STK-C — Contraintes de stock | STK-B, CMD-B, CMD-A | Les limites s’appliquent au panier et sont revérifiées à la commande. |
+| STK-A — Mise à jour automatique du stock | CMD-A, PIL-B | Le stock est décrémenté à la commande et restauré à l’annulation. |
+| GOF-B — Back-office | Aucune | L’administration possède son accès séparé. |
+| GOF-C — Gestion des catégories | GOF-B, DEC-B | Les catégories sont gérées dans le back-office et alimentent le catalogue. |
+| GOF-A — Gestion des produits | GOF-B, GOF-C, DEC-B | La gestion des produits s’appuie sur les catégories ; les options et seuils de stock s’ajoutent avec OPT-C et STK-B. |
+| OPT-C — Choix des options | DEC-C, CMD-B | Les options sont choisies sur la fiche puis ajoutées au panier. |
+| OPT-B — Variantes et stock par variante | OPT-C | Les variantes reposent sur les options et modifient la gestion du stock. |
+| OPT-A — Options dans le panier et les commandes | OPT-C, CMD-B, CMD-A | Les options choisies doivent être conservées du panier à la commande. |
+| SUI-B — Espace personnel | CMD-C ; CMD-A pour les commandes récentes | L’espace est réservé au client connecté et peut afficher ses commandes. |
+| SUI-C — Historique des commandes | CMD-A, SUI-B | L’historique affiche les commandes du client ; PIL-B et OPT-A apportent les statuts et options. |
+| SUI-A — Réutilisation des commandes | SUI-C, CMD-B, STK-C | La commande est reprise depuis l’historique, avec contrôle du stock et conservation des options OPT-A. |
+| PIL-B — Gestion des commandes | CMD-A, GOF-B | L’administrateur traite les commandes enregistrées. |
+| PIL-A — Statistiques | GOF-B, CMD-A, PIL-B, STK-B | Le tableau de bord rassemble commandes, statuts et stocks. |
 
-## Si ça ne marche pas
+## Ordre de réalisation retenu
 
-| Symptôme | Cause probable |
-|---|---|
-| Un listing de dossiers, ou une erreur 404 sur la racine | le `.htaccess` n'a pas été déposé, ou `front/dist/` est absent (lancer `npm run build`) |
-| Page blanche, fichiers `assets/…` en 404 | `BASE` de `vite.config.js` ne correspond pas au dossier de dépôt |
-| « Impossible de charger le catalogue » | identifiants de `config.php`, ou tables non importées |
-| Les réglages ne sont jamais retenus, la connexion ne tient pas | `chemin` de `config.php` ne correspond pas au dossier de dépôt |
-| En développement, l'API répond 404 | le back n'est pas déployé sur le serveur, ou `BASE` est faux |
+1. **Découvrir l’offre et commander :** DEC-B, DEC-C, DEC-A, CMD-B, CMD-C, CMD-A.  
+   Cela fournit le catalogue, la navigation, le panier, les comptes et la commande.
+
+2. **Personnaliser les produits :** OPT-C, OPT-B, OPT-A.  
+   Les options et variantes sont définies avant leur prise en compte dans le stock et les commandes.
+
+3. **Garantir la disponibilité — première partie :** STK-B, STK-C.  
+   Le client voit le stock et ne peut pas dépasser les quantités disponibles.
+
+4. **Gérer l’offre :** GOF-B, GOF-C, GOF-A.  
+   Le back-office permet ensuite de gérer les catégories et les produits, avec leurs options et seuils de stock.
+
+5. **Traiter et piloter l’activité :** PIL-B, PIL-A.  
+   Les commandes existantes peuvent être traitées, puis exploitées dans les statistiques.
+
+6. **Garantir la disponibilité — seconde partie :** STK-A.  
+   La décrémentation et la restauration automatiques s’appuient sur la validation et l’annulation des commandes.
+
+7. **Suivre les achats :** SUI-B, SUI-C, SUI-A.  
+   L’espace client, l’historique et la réutilisation s’appuient sur les commandes, leurs options et les contrôles de stock déjà en place.
+
+## Justification générale
+
+Les options et les variantes précèdent la gestion finale du stock, celui-ci dépend notamment des tailles et des autres choix du client. Le stock visible et ses limites sont ensuite mis en place avant les outils d’administration. Le traitement des commandes précède la mise à jour automatique du stock, car l’annulation doit pouvoir restaurer les quantités. Enfin, l’espace client vient après les parcours de commande, afin de réutiliser les données réellement enregistrées.
+
+## Audit Lighthouse
+
+Scores visibles sur la capture du 22 octobre 2026 :
+
+| Performance | Accessibilité | Bonnes pratiques | SEO |
+|---:|---:|---:|---:|
+| 75 | 100 | 100 | 100 |
+
+
